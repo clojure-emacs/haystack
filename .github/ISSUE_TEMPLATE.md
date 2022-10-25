@@ -23,6 +23,8 @@ a problem will expedite its solution.*
 
 ### CIDER version information
 
+_Optional_
+
 *Include here the version string displayed when
 CIDER's REPL is launched. Here's an example:*
 
@@ -30,13 +32,3 @@ CIDER's REPL is launched. Here's an example:*
 ;; CIDER 0.12.0snapshot (package: 20160331.421), nREPL 0.2.12
 ;; Clojure 1.8.0, Java 1.8.0_31
 ```
-
-### Leiningen or Boot version
-
-### Emacs version
-
-*E.g. 24.5* (use <kbd>M-x emacs-version</kbd> to check it if unsure)
-
-### Operating system
-
-*E.g. Fedora 23, OS X 10.11 "El Capitan", Windows 10, etc*

@@ -13,11 +13,6 @@ To help us, please, follow these guidelines:
 * Check that the issue has not already been fixed in the latest code
   (a.k.a. `master`).
 * Be clear, concise and precise in your description of the problem.
-* Mention the version you're running. You can call `cljr-version` to obtain this information.
-* Mention the CIDER version you're running.
-* Mention the leiningen or boot version you're using.
-* Mention your Emacs version and operating system.
-* Include any relevant code to the issue summary.
 
 ## Pull requests
 

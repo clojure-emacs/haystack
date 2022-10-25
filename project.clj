@@ -1,7 +1,7 @@
 ;; PROJECT_VERSION is set by .circleci/deploy/deploy_release.clj,
 ;; whenever we perform a deployment.
-(defproject haystack (or (not-empty (System/getenv "PROJECT_VERSION"))
-                         "0.0.0")
+(defproject mx.cider/haystack (or (not-empty (System/getenv "PROJECT_VERSION"))
+                                  "0.0.0")
   :description ""
   :url "https://github.com/clojure-emacs/haystack"
   :license {:name "Eclipse Public License"
