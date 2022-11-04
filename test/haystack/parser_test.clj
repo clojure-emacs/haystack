@@ -1,9 +1,9 @@
-(ns haystack.stacktrace.parser-test
+(ns haystack.parser-test
   (:require
    [clojure.string :as str]
    [clojure.test :refer [deftest is testing]]
-   [haystack.stacktrace.parser :as parser]
-   [haystack.stacktrace.parser.test :as test]))
+   [haystack.parser :as parser]
+   [haystack.parser.test :as test]))
 
 (deftest parse-test
   (doseq [fixture test/fixtures]

@@ -1,8 +1,8 @@
-(ns haystack.stacktrace.parser.clojure.throwable
+(ns haystack.parser.clojure.throwable
   "Convert `java.lang.Throwable` instances into the `Throwable->map` data format."
   {:added "0.11.0"}
   (:refer-clojure :exclude [StackTraceElement->vec Throwable->map])
-  (:require [haystack.stacktrace.parser.util :as util]))
+  (:require [haystack.parser.util :as util]))
 
 ;; Throwable
 

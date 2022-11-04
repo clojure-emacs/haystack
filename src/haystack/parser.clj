@@ -1,13 +1,13 @@
-(ns haystack.stacktrace.parser
-  "The haystack.stacktrace parser."
+(ns haystack.parser
+  "The haystack parser."
   {:added "0.11.0"}
-  (:require [haystack.stacktrace.parser.aviso :as aviso]
-            [haystack.stacktrace.parser.clojure.repl :as clojure.repl]
-            [haystack.stacktrace.parser.clojure.stacktrace :as clojure.stacktrace]
-            [haystack.stacktrace.parser.clojure.tagged-literal :as clojure.tagged-literal]
-            [haystack.stacktrace.parser.clojure.throwable :as clojure.throwable]
-            [haystack.stacktrace.parser.java :as java]
-            [haystack.stacktrace.parser.util :as util]))
+  (:require [haystack.parser.aviso :as aviso]
+            [haystack.parser.clojure.repl :as clojure.repl]
+            [haystack.parser.clojure.stacktrace :as clojure.stacktrace]
+            [haystack.parser.clojure.tagged-literal :as clojure.tagged-literal]
+            [haystack.parser.clojure.throwable :as clojure.throwable]
+            [haystack.parser.java :as java]
+            [haystack.parser.util :as util]))
 
 (def ^{:added "0.11.0"} default-parsers
   "The default stacktrace parsers."

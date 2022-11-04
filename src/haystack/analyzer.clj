@@ -1,4 +1,4 @@
-(ns haystack.stacktrace.analyzer
+(ns haystack.analyzer
   "Cause and stacktrace analysis for exceptions"
   {:added "0.11.0"
    :author "Jeff Valk"}
@@ -7,7 +7,7 @@
    [clojure.repl :as repl]
    [clojure.set :as set]
    [clojure.string :as str]
-   [haystack.stacktrace.parser.clojure.throwable :as throwable]
+   [haystack.parser.clojure.throwable :as throwable]
    [orchard.info :as info]
    [orchard.java :as java]
    [orchard.java.resource :as resource]

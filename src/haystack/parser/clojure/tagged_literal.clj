@@ -1,8 +1,8 @@
-(ns haystack.stacktrace.parser.clojure.tagged-literal
+(ns haystack.parser.clojure.tagged-literal
   "Parser for stacktraces in Clojure's tagged literal format."
   {:added "0.11.0"}
   (:require [clojure.edn :as edn]
-            [haystack.stacktrace.parser.util :as util]))
+            [haystack.parser.util :as util]))
 
 (def ^:private read-options
   "The options used when reading a stacktrace in EDN format."

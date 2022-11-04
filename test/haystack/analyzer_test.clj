@@ -1,9 +1,9 @@
-(ns haystack.stacktrace.analyzer-test
+(ns haystack.analyzer-test
   (:require
    [clojure.java.io :as io]
    [clojure.test :refer [are deftest is testing]]
-   [haystack.stacktrace.analyzer :as sut]
-   [haystack.stacktrace.parser :as parser]
+   [haystack.analyzer :as sut]
+   [haystack.parser :as parser]
    [orchard.spec :as spec]))
 
 ;; # Utils
@@ -190,7 +190,7 @@
                    (:message (first causes3))))
 
       ;; 1.10+
-      (is (re-find #"Syntax error compiling at \(haystack.stacktrace/analyzer_test\.clj:"
+      (is (re-find #"Syntax error compiling at \(haystack/analyzer_test\.clj:"
                    (:message (first causes3))))))
 
   (testing "extract-location"

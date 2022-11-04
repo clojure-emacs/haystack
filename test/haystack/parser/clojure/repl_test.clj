@@ -1,7 +1,7 @@
-(ns haystack.stacktrace.parser.clojure.repl-test
+(ns haystack.parser.clojure.repl-test
   (:require [clojure.test :refer [deftest is testing]]
-            [haystack.stacktrace.parser.clojure.repl :as parser]
-            [haystack.stacktrace.parser.test :as test]))
+            [haystack.parser.clojure.repl :as parser]
+            [haystack.parser.test :as test]))
 
 (defn- parse-fixture [name]
   (some-> name test/read-fixture parser/parse-stacktrace))

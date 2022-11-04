@@ -1,8 +1,8 @@
-(ns haystack.stacktrace.parser.clojure.throwable-test
+(ns haystack.parser.clojure.throwable-test
   (:require
    [clojure.test :refer [deftest is testing]]
-   [haystack.stacktrace.parser.clojure.throwable :as parser]
-   [haystack.stacktrace.parser.test :as test]))
+   [haystack.parser.clojure.throwable :as parser]
+   [haystack.parser.test :as test]))
 
 (def boom
   (ex-info "BOOM-1" {:boom "1"}
