@@ -1,13 +1,14 @@
 (ns haystack.parser.clojure.tagged-literal-test
   (:require [clojure.test :refer [deftest is testing]]
             [haystack.parser.clojure.tagged-literal :as parser]
-            [haystack.parser.test :as test #?(:clj :refer :cljs :refer-macros) [fixture]]))
+            [haystack.parser.test :as test]
+            [haystack.parser.test.fixtures :refer [fixtures]]))
 
 (defn- parse [s]
   (parser/parse-stacktrace s))
 
 (deftest parse-stacktrace-boom-test
-  (let [{:keys [cause data trace stacktrace-type via]} (parse (fixture :boom.clojure.tagged-literal))]
+  (let [{:keys [cause data trace stacktrace-type via]} (parse (fixtures :boom.clojure.tagged-literal))]
     (testing ":stacktrace-type"
       (is (= :clojure.tagged-literal stacktrace-type)))
     (testing "throwable cause"
@@ -43,7 +44,7 @@
         (is (= '[java.lang.Thread run "Thread.java" 829] (last trace)))))))
 
 (deftest parse-stacktrace-divide-by-zero-test
-  (let [{:keys [cause data trace stacktrace-type via]} (parse (fixture :divide-by-zero.clojure.tagged-literal))]
+  (let [{:keys [cause data trace stacktrace-type via]} (parse (fixtures :divide-by-zero.clojure.tagged-literal))]
     (testing ":stacktrace-type"
       (is (= :clojure.tagged-literal stacktrace-type)))
     (testing "throwable cause"
@@ -67,7 +68,7 @@
         (is (= '[java.lang.Thread run "Thread.java" 829] (last trace)))))))
 
 (deftest parse-stacktrace-short-test
-  (let [{:keys [cause data trace stacktrace-type via]} (parse (fixture :short.clojure.tagged-literal))]
+  (let [{:keys [cause data trace stacktrace-type via]} (parse (fixtures :short.clojure.tagged-literal))]
     (testing ":stacktrace-type"
       (is (= :clojure.tagged-literal stacktrace-type)))
     (testing "throwable cause"
@@ -100,18 +101,18 @@
              :at [java.lang.Thread run "Thread.java" 829]}]
            :trace [[java.lang.Thread run "Thread.java" 829]]
            :stacktrace-type :clojure.tagged-literal}
-         (parse (fixture :short.clojure.tagged-literal.println)))))
+         (parse (fixtures :short.clojure.tagged-literal.println)))))
 
 (deftest parse-stacktrace-incorrect-input-test
   (testing "parsing incorrect input"
-    (let [{:keys [error input type]} (parser/parse-stacktrace "")]
+    (let [{:keys [error input type]} (parse "")]
       (is (= :incorrect error))
       (is (= :incorrect-input type))
       (is (= "" input)))))
 
 (deftest parse-stacktrace-unsupported-input-test
   (testing "parsing unsupported input"
-    (let [{:keys [error input type]} (parser/parse-stacktrace 1)]
+    (let [{:keys [error input type]} (parse 1)]
       (is (= :unsupported error))
       (is (= :unsupported-input type))
       (is (= 1 input)))))

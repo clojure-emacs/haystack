@@ -3,26 +3,8 @@
    #?(:clj [clojure.string :as str])
    [clojure.test :refer [deftest is testing]]
    [haystack.parser :as parser]
-   [haystack.parser.test :as test #?(:clj :refer :cljs :refer-macros) [fixture]]))
-
-(def fixtures
-  {:boom.aviso.full (fixture :boom.aviso.full)
-   :boom.aviso (fixture :boom.aviso)
-   :boom.clojure.repl (fixture :boom.clojure.repl)
-   :boom.clojure.stacktrace (fixture :boom.clojure.stacktrace)
-   :boom.clojure.tagged-literal (fixture :boom.clojure.tagged-literal)
-   :boom.java (fixture :boom.java)
-   :divide-by-zero.aviso (fixture :divide-by-zero.aviso)
-   :divide-by-zero.clojure.repl (fixture :divide-by-zero.clojure.repl)
-   :divide-by-zero.clojure.stacktrace (fixture :divide-by-zero.clojure.stacktrace)
-   :divide-by-zero.clojure.tagged-literal (fixture :divide-by-zero.clojure.tagged-literal)
-   :divide-by-zero.java (fixture :divide-by-zero.java)
-   :short.aviso (fixture :short.aviso)
-   :short.clojure.repl (fixture :short.clojure.repl)
-   :short.clojure.stacktrace (fixture :short.clojure.stacktrace)
-   :short.clojure.tagged-literal.println (fixture :short.clojure.tagged-literal.println)
-   :short.clojure.tagged-literal (fixture :short.clojure.tagged-literal)
-   :short.java (fixture :short.java)})
+   [haystack.parser.test :as test]
+   [haystack.parser.test.fixtures :refer [fixtures]]))
 
 (deftest parse-test
   (doseq [[fixture text] fixtures]

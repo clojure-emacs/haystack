@@ -12,8 +12,11 @@
 (def short-boom
   (ex-info "BOOM-1" {:boom "1"}))
 
+(defn- parse [s]
+  (parser/parse-stacktrace s))
+
 (deftest parse-throwable-test
-  (let [{:keys [cause data trace stacktrace-type via]} (parser/parse-stacktrace boom)]
+  (let [{:keys [cause data trace stacktrace-type via]} (parse boom)]
     (testing ":stacktrace-type"
       (is (= :throwable stacktrace-type)))
     (testing "throwable cause"
@@ -48,7 +51,7 @@
           (try (/ 1 0) (catch Exception e e))))
 
 #?(:clj (deftest parse-stacktrace-divide-by-zero-test
-          (let [{:keys [cause data trace stacktrace-type via]} (parser/parse-stacktrace divide-by-zero)]
+          (let [{:keys [cause data trace stacktrace-type via]} (parse divide-by-zero)]
             (testing ":stacktrace-type"
               (is (= :throwable stacktrace-type)))
             (testing "throwable cause"
@@ -68,7 +71,7 @@
                 (is (test/stacktrace-element? element) (pr-str element)))))))
 
 (deftest parse-stacktrace-short-test
-  (let [{:keys [cause data trace stacktrace-type via]} (parser/parse-stacktrace short-boom)]
+  (let [{:keys [cause data trace stacktrace-type via]} (parse short-boom)]
     (testing ":stacktrace-type"
       (is (= :throwable stacktrace-type)))
     (testing "throwable cause"
@@ -92,4 +95,4 @@
     (is (= {:error :unsupported
             :type :unsupported-input
             :input ""}
-           (parser/parse-stacktrace "")))))
+           (parse "")))))

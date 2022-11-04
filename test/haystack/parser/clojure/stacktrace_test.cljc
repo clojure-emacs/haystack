@@ -1,13 +1,14 @@
 (ns haystack.parser.clojure.stacktrace-test
   (:require [clojure.test :refer [deftest is testing]]
             [haystack.parser.clojure.stacktrace :as parser]
-            [haystack.parser.test :as test #?(:clj :refer :cljs :refer-macros) [fixture]]))
+            [haystack.parser.test :as test]
+            [haystack.parser.test.fixtures :refer [fixtures]]))
 
 (defn- parse [s]
   (parser/parse-stacktrace s))
 
 (deftest parse-stacktrace-boom-test
-  (let [{:keys [cause data trace stacktrace-type via]} (parse (fixture :boom.clojure.stacktrace))]
+  (let [{:keys [cause data trace stacktrace-type via]} (parse (fixtures :boom.clojure.stacktrace))]
     (testing ":stacktrace-type"
       (is (= :clojure.stacktrace stacktrace-type)))
     (testing "throwable cause"
@@ -57,7 +58,7 @@
                (last trace)))))))
 
 (deftest parse-stacktrace-divide-by-zero-test
-  (let [{:keys [cause data trace stacktrace-type via]} (parse (fixture :divide-by-zero.clojure.stacktrace))]
+  (let [{:keys [cause data trace stacktrace-type via]} (parse (fixtures :divide-by-zero.clojure.stacktrace))]
     (testing ":stacktrace-type"
       (is (= :clojure.stacktrace stacktrace-type)))
     (testing "throwable cause"
@@ -81,7 +82,7 @@
         (is (= '[java.lang.Thread run "Thread.java" 829] (last trace)))))))
 
 (deftest parse-stacktrace-short-test
-  (let [{:keys [cause data trace stacktrace-type via]} (parse (fixture :short.clojure.stacktrace))]
+  (let [{:keys [cause data trace stacktrace-type via]} (parse (fixtures :short.clojure.stacktrace))]
     (testing ":stacktrace-type"
       (is (= :clojure.stacktrace stacktrace-type)))
     (testing "throwable cause"
@@ -106,7 +107,7 @@
 
 (deftest parse-stacktrace-incorrect-input-test
   (testing "parsing a string not matching the grammar"
-    (let [{:keys [error failure input type]} (parser/parse-stacktrace "")]
+    (let [{:keys [error failure input type]} (parse "")]
       (is (= :incorrect error))
       (is (= :incorrect-input type))
       (is (= "" input))
@@ -123,7 +124,7 @@
 
 (deftest parse-stacktrace-unsupported-input-test
   (testing "parsing unsupported input"
-    (let [{:keys [error input type]} (parser/parse-stacktrace 1)]
+    (let [{:keys [error input type]} (parse 1)]
       (is (= :unsupported error))
       (is (= :unsupported-input type))
       (is (= 1 input)))))
