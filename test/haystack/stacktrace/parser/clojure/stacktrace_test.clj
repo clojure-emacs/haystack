@@ -48,7 +48,7 @@
                  (take 3 trace))))))
     (testing ":trace"
       (doseq [element trace]
-        (is (test/stacktrace-element? element) element))
+        (is (test/stacktrace-element? element) (pr-str element)))
       (testing "first frame"
         (is (= '[clojure.lang.AFn applyToHelper "AFn.java" 156]
                (first trace))))
@@ -74,7 +74,7 @@
           (is (= 'java.lang.ArithmeticException type)))))
     (testing ":trace"
       (doseq [element trace]
-        (is (test/stacktrace-element? element) element))
+        (is (test/stacktrace-element? element) (pr-str element)))
       (testing "first frame"
         (is (= '[clojure.lang.Numbers divide "Numbers.java" 188] (first trace))))
       (testing "last frame"
@@ -98,7 +98,7 @@
           (is (= 'clojure.lang.ExceptionInfo type)))))
     (testing ":trace"
       (doseq [element trace]
-        (is (test/stacktrace-element? element) element))
+        (is (test/stacktrace-element? element) (pr-str element)))
       (testing "first frame"
         (is (= '[java.lang.Thread run "Thread.java" 829] (first trace))))
       (testing "last frame"
