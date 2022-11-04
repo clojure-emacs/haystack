@@ -2,8 +2,8 @@
   "Parser for stacktraces in the Aviso format."
   {:added "0.11.0"}
   (:require [clojure.java.io :as io]
-            [instaparse.core  :as insta :refer [defparser]]
-            [haystack.stacktrace.parser.util :as util]))
+            [haystack.stacktrace.parser.util :as util]
+            [instaparse.core  :as insta :refer [defparser]]))
 
 (def ^:private stacktrace-start-regex
   "The regular expression matching the start of an Aviso stacktrace."
