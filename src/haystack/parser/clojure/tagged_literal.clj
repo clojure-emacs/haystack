@@ -1,6 +1,7 @@
 (ns haystack.parser.clojure.tagged-literal
   "Parser for stacktraces in Clojure's tagged literal format."
-  {:added "0.11.0"}
+  {:added "0.1.0"
+   :author "r0man"}
   (:require [clojure.edn :as edn]
             [haystack.parser.util :as util]))
 
@@ -49,7 +50,7 @@
 
 (defn parse-stacktrace
   "Parse `input` as a stacktrace in Clojure's tagged literal format."
-  {:added "0.11.0"}
+  {:added "0.1.0"}
   [input]
   (try (let [s (util/seek-to-regex input stacktrace-start-regex)
              {:keys [form tag]} (edn/read-string read-options s)]

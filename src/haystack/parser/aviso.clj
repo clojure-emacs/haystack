@@ -1,6 +1,7 @@
 (ns haystack.parser.aviso
   "Parser for stacktraces in the Aviso format."
-  {:added "0.11.0"}
+  {:added "0.1.0"
+   :author "r0man"}
   (:require [clojure.java.io :as io]
             [haystack.parser.util :as util]
             [instaparse.core  :as insta :refer [defparser]]))
@@ -88,6 +89,6 @@
 
 (defn parse-stacktrace
   "Parse `input` as a stacktrace in the Aviso format."
-  {:added "0.11.0"}
+  {:added "0.1.0"}
   [input]
   (util/parse-stacktrace parser transformations :aviso stacktrace-start-regex input))
