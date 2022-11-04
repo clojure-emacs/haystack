@@ -7,11 +7,11 @@
    [clojure.repl :as repl]
    [clojure.set :as set]
    [clojure.string :as str]
+   [haystack.stacktrace.parser.clojure.throwable :as throwable]
    [orchard.info :as info]
    [orchard.java :as java]
    [orchard.java.resource :as resource]
-   [orchard.namespace :as namespace]
-   [haystack.stacktrace.parser.clojure.throwable :as throwable])
+   [orchard.namespace :as namespace])
   (:import
    (java.io StringWriter)))
 
@@ -40,7 +40,7 @@
 (defn- flag-frame
   "Update frame's flags vector to include the new flag."
   [frame flag]
-  (update-in frame [:flags] (comp set conj) flag))
+  (update frame :flags (comp set conj) flag))
 
 (defn- source-path
   "Return the relative source path for the class without extension."

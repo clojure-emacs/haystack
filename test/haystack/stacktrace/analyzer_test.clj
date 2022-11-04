@@ -2,9 +2,9 @@
   (:require
    [clojure.java.io :as io]
    [clojure.test :refer [are deftest is testing]]
-   [orchard.spec :as spec]
    [haystack.stacktrace.analyzer :as sut]
-   [haystack.stacktrace.parser :as parser]))
+   [haystack.stacktrace.parser :as parser]
+   [orchard.spec :as spec]))
 
 ;; # Utils
 
