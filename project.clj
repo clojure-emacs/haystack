@@ -34,12 +34,12 @@
              :cljfmt [:test
                       {:plugins [[lein-cljfmt "0.9.0" :exclusions [org.clojure/clojure
                                                                    org.clojure/clojurescript]]]}]
-             :eastwood {:plugins         [[jonase/eastwood "1.3.0"]]
+             :eastwood {:plugins [[jonase/eastwood "1.3.0"]]
                         :eastwood {;; :implicit-dependencies would fail spuriously when the CI matrix runs for Clojure < 1.10,
                                    ;; because :implicit-dependencies can only work for a certain corner case starting from 1.10.
                                    :exclude-linters [:implicit-dependencies]
                                    :exclude-namespaces [refactor-nrepl.plugin]
-                                   :add-linters [:performance :boxed-math]
+                                   :add-linters [:performance]
                                    :config-files ["eastwood.clj"]}}
              :clj-kondo [:test
                          {:dependencies [[clj-kondo "2022.10.14"]]}]

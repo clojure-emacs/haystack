@@ -36,7 +36,7 @@
           (is (= 'clojure.lang.ExceptionInfo type)))))
     (testing ":trace"
       (doseq [element trace]
-        (is (test/stacktrace-element? element) element))
+        (is (test/stacktrace-element? element) (pr-str element)))
       (testing "first frame"
         (is (= '[haystack.parser.throwable-test eval12321 "REPL Input"] (first trace))))
       (testing "last frame"
@@ -72,7 +72,7 @@
           (is (= 'clojure.lang.ExceptionInfo type)))))
     (testing ":trace"
       (doseq [element trace]
-        (is (test/stacktrace-element? element) element))
+        (is (test/stacktrace-element? element) (pr-str element)))
       (testing "first frame"
         (is (= '[clojure.lang.AFn applyToHelper "AFn.java" 156] (first trace))))
       (testing "last frame"
@@ -96,7 +96,7 @@
           (is (= 'java.lang.ArithmeticException type)))))
     (testing ":trace"
       (doseq [element trace]
-        (is (test/stacktrace-element? element) element))
+        (is (test/stacktrace-element? element) (pr-str element)))
       (testing "first frame"
         (is (= '[haystack.parser.throwable-test fn "throwable_test.clj" 13]
                (first trace))))
@@ -122,7 +122,7 @@
           (is (= 'clojure.lang.ExceptionInfo type)))))
     (testing ":trace"
       (doseq [element trace]
-        (is (test/stacktrace-element? element) element))
+        (is (test/stacktrace-element? element) (pr-str element)))
       (testing "first frame"
         (is (= '[java.lang.Thread run "Thread.java" 829] (first trace))))
       (testing "last frame"
