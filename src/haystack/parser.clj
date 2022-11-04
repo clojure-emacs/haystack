@@ -1,5 +1,5 @@
 (ns haystack.parser
-  "The haystack parser."
+  "The stacktrace parser."
   {:added "0.1.0"
    :author "r0man"}
   (:require [haystack.parser.aviso :as aviso]
