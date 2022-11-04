@@ -1,4 +1,4 @@
-(ns haystack.stacktrace.parser.test
+(ns haystack.parser.test
   (:require
    [clojure.java.io :as io]
    [clojure.walk :as walk])

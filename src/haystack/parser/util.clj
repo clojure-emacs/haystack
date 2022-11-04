@@ -1,4 +1,4 @@
-(ns haystack.stacktrace.parser.util
+(ns haystack.parser.util
   "Utility functions used by the stacktrace parsers."
   {:added "0.11.0"}
   (:require [clojure.edn :as edn]

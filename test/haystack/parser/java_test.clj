@@ -1,15 +1,15 @@
-(ns haystack.stacktrace.parser.clojure.tagged-literal-test
+(ns haystack.parser.java-test
   (:require [clojure.test :refer [deftest is testing]]
-            [haystack.stacktrace.parser.clojure.tagged-literal :as parser]
-            [haystack.stacktrace.parser.test :as test]))
+            [haystack.parser.java :as parser]
+            [haystack.parser.test :as test]))
 
 (defn- parse-fixture [name]
   (some-> name test/read-fixture parser/parse-stacktrace))
 
 (deftest parse-stacktrace-boom-test
-  (let [{:keys [cause data trace stacktrace-type via]} (parse-fixture :boom.clojure.tagged-literal)]
+  (let [{:keys [cause data trace stacktrace-type via]} (parse-fixture :boom.java)]
     (testing ":stacktrace-type"
-      (is (= :clojure.tagged-literal stacktrace-type)))
+      (is (= :java stacktrace-type)))
     (testing "throwable cause"
       (is (= "BOOM-3" cause)))
     (testing ":data"
@@ -17,35 +17,49 @@
     (testing ":via"
       (is (= 3 (count via)))
       (testing "first cause"
-        (let [{:keys [at data message type]} (nth via 0)]
+        (let [{:keys [at data message trace type]} (nth via 0)]
           (is (= '[clojure.lang.AFn applyToHelper "AFn.java" 160] at))
           (is (= {:boom "1"} data))
           (is (= "BOOM-1" message))
-          (is (= 'clojure.lang.ExceptionInfo type))))
+          (is (= 'clojure.lang.ExceptionInfo type))
+          (is (= '[[clojure.lang.AFn applyToHelper "AFn.java" 160]
+                   [clojure.lang.AFn applyTo "AFn.java" 144]
+                   [clojure.lang.Compiler$InvokeExpr eval "Compiler.java" 3706]]
+                 (take 3 trace)))))
       (testing "second cause"
-        (let [{:keys [at data message type]} (nth via 1)]
+        (let [{:keys [at data message trace type]} (nth via 1)]
           (is (= '[clojure.lang.AFn applyToHelper "AFn.java" 160] at))
           (is (= {:boom "2"} data))
           (is (= "BOOM-2" message))
-          (is (= 'clojure.lang.ExceptionInfo type))))
+          (is (= 'clojure.lang.ExceptionInfo type))
+          (is (= '[[clojure.lang.AFn applyToHelper "AFn.java" 160]
+                   [clojure.lang.AFn applyTo "AFn.java" 144]
+                   [clojure.lang.Compiler$InvokeExpr eval "Compiler.java" 3706]]
+                 (take 3 trace)))))
       (testing "third cause"
-        (let [{:keys [at data message type]} (nth via 2)]
+        (let [{:keys [at data message trace type]} (nth via 2)]
           (is (= '[clojure.lang.AFn applyToHelper "AFn.java" 156] at))
           (is (= {:boom "3"} data))
           (is (= "BOOM-3" message))
-          (is (= 'clojure.lang.ExceptionInfo type)))))
+          (is (= 'clojure.lang.ExceptionInfo type))
+          (is (= '[[clojure.lang.AFn applyToHelper "AFn.java" 156]
+                   [clojure.lang.AFn applyTo "AFn.java" 144]
+                   [clojure.lang.Compiler$InvokeExpr eval "Compiler.java" 3706]]
+                 (take 3 trace))))))
     (testing ":trace"
       (doseq [element trace]
         (is (test/stacktrace-element? element) (pr-str element)))
       (testing "first frame"
-        (is (= '[clojure.lang.AFn applyToHelper "AFn.java" 156] (first trace))))
+        (is (= '[clojure.lang.AFn applyToHelper "AFn.java" 156]
+               (first trace))))
       (testing "last frame"
-        (is (= '[java.lang.Thread run "Thread.java" 829] (last trace)))))))
+        (is (= '[clojure.lang.Compiler$InvokeExpr eval "Compiler.java" 3705]
+               (last trace)))))))
 
 (deftest parse-stacktrace-divide-by-zero-test
-  (let [{:keys [cause data trace stacktrace-type via]} (parse-fixture :divide-by-zero.clojure.tagged-literal)]
+  (let [{:keys [cause data trace stacktrace-type via]} (parse-fixture :divide-by-zero.java)]
     (testing ":stacktrace-type"
-      (is (= :clojure.tagged-literal stacktrace-type)))
+      (is (= :java stacktrace-type)))
     (testing "throwable cause"
       (is (= "Divide by zero" cause)))
     (testing ":data"
@@ -64,12 +78,12 @@
       (testing "first frame"
         (is (= '[clojure.lang.Numbers divide "Numbers.java" 188] (first trace))))
       (testing "last frame"
-        (is (= '[java.lang.Thread run "Thread.java" 829] (last trace)))))))
+        (is (= '[java.base/java.lang.Thread run "Thread.java" 829] (last trace)))))))
 
 (deftest parse-stacktrace-short-test
-  (let [{:keys [cause data trace stacktrace-type via]} (parse-fixture :short.clojure.tagged-literal)]
+  (let [{:keys [cause data trace stacktrace-type via]} (parse-fixture :short.java)]
     (testing ":stacktrace-type"
-      (is (= :clojure.tagged-literal stacktrace-type)))
+      (is (= :java stacktrace-type)))
     (testing "throwable cause"
       (is (= "BOOM-1" cause)))
     (testing ":data"
@@ -78,7 +92,7 @@
       (is (= 1 (count via)))
       (testing "first cause"
         (let [{:keys [at data message type]} (nth via 0)]
-          (is (= '[java.lang.Thread run "Thread.java" 829] at))
+          (is (= '[java.base/java.lang.Thread run "Thread.java" 829] at))
           (is (= {:boom "1"} data))
           (is (= "BOOM-1" message))
           (is (= 'clojure.lang.ExceptionInfo type)))))
@@ -86,28 +100,24 @@
       (doseq [element trace]
         (is (test/stacktrace-element? element) (pr-str element)))
       (testing "first frame"
-        (is (= '[java.lang.Thread run "Thread.java" 829] (first trace))))
+        (is (= '[java.base/java.lang.Thread run "Thread.java" 829] (first trace))))
       (testing "last frame"
-        (is (= '[java.lang.Thread run "Thread.java" 829] (last trace)))))))
-
-(deftest parse-short-clojure-tagged-literal-println-test
-  (is (= '{:cause "BOOM-1"
-           :data {:boom 1}
-           :via
-           [{:type clojure.lang.ExceptionInfo
-             :message "BOOM-1"
-             :data {:boom 1}
-             :at [java.lang.Thread run "Thread.java" 829]}]
-           :trace [[java.lang.Thread run "Thread.java" 829]]
-           :stacktrace-type :clojure.tagged-literal}
-         (parse-fixture :short.clojure.tagged-literal.println))))
+        (is (= '[java.base/java.lang.Thread run "Thread.java" 829] (last trace)))))))
 
 (deftest parse-stacktrace-incorrect-input-test
-  (testing "parsing incorrect input"
-    (let [{:keys [error input type]} (parser/parse-stacktrace "")]
+  (testing "parsing a string not matching the grammar"
+    (let [{:keys [error failure input type]} (parser/parse-stacktrace "")]
       (is (= :incorrect error))
       (is (= :incorrect-input type))
-      (is (= "" input)))))
+      (is (= "" input))
+      (is (= {:index 0
+              :reason
+              [{:tag :regexp, :expecting "[a-zA-Z0-9_$/-]"}
+               {:tag :regexp, :expecting "[^\\S\\r\\n]+"}]
+              :line 1
+              :column 1
+              :text nil}
+             (test/stringify-regexp failure))))))
 
 (deftest parse-stacktrace-unsupported-input-test
   (testing "parsing unsupported input"
