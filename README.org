@@ -163,30 +163,6 @@ following rules:
   well, unless you have a better, simpler or more efficient way of
   parsing it (like the Clojure tagged literal parser for example).
 
-*** Instaparse Tips & Tricks
-
-Writing a grammar for a stacktrace format might be challenging at
-times, especially when garbage in the input is involved, which might
-introduce ambiguities in your grammar. Here are some tips and trick
-for writing Instaparse grammars:
-
-- Read the [[https://github.com/Engelberg/instaparse][documentation]], it is good and has many examples.
-
-- Start with the most simple parser, try to pass the exception class
-  or name before building up.
-
-- Use the =:start= parameter of the Instaparse parser, to [[https://github.com/Engelberg/instaparse#parsing-from-another-start-rule][parse input
-  from another start rule]]. This is useful if your grammar got complex,
-  but you want to try parsing of an individual rule.
-
-- Be aware of [[https://github.com/Engelberg/instaparse#regular-expressions-a-word-of-warning][greedy regex behavior]].
-
-- When testing input try it against the raw Instaparse parser first,
-  and only apply the Instaparse [[https://github.com/Engelberg/instaparse#transforming-the-tree][transformations]] when the parser works.
-
-- If your parser fails on an input, [[https://github.com/Engelberg/instaparse#revealing-hidden-information][reveal hidden information]] to get a
-  better understanding of what happened.
-
 ** Analyzer
 
 The Orchard stacktrace analyzer transforms a stacktrace into an
@@ -253,6 +229,30 @@ Here's how to deploy to Clojars:
 git tag -a v0.1.0 -m "0.1.0"
 git push --tags
 #+end_src
+
+*** Instaparse Tips & Tricks
+
+Writing a grammar for a stacktrace format might be challenging at
+times, especially when garbage in the input is involved, which might
+introduce ambiguities in your grammar. Here are some tips and trick
+for writing Instaparse grammars:
+
+- Read the [[https://github.com/Engelberg/instaparse][documentation]], it is good and has many examples.
+
+- Start with the most simple parser, try to pass the exception class
+  or name before building up.
+
+- Use the =:start= parameter of the Instaparse parser, to [[https://github.com/Engelberg/instaparse#parsing-from-another-start-rule][parse input
+  from another start rule]]. This is useful if your grammar got complex,
+  but you want to try parsing of an individual rule.
+
+- Be aware of [[https://github.com/Engelberg/instaparse#regular-expressions-a-word-of-warning][greedy regex behavior]].
+
+- When testing input try it against the raw Instaparse parser first,
+  and only apply the Instaparse [[https://github.com/Engelberg/instaparse#transforming-the-tree][transformations]] when the parser works.
+
+- If your parser fails on an input, [[https://github.com/Engelberg/instaparse#revealing-hidden-information][reveal hidden information]] to get a
+  better understanding of what happened.
 
 ** Changelog
 
