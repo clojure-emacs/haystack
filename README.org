@@ -1,0 +1,258 @@
+* Haystack
+** Introduction
+
+Stacktraces are a hot topic in the Clojure community. As a Clojurist
+you deal with them in different kinds of situations. Sometimes you
+catch them "live", like an exception just thrown in a REPL. Other
+times you find them as text, printed in a REPL, or in a log file. Or
+worst, a printed exception buried inside another string, almost
+impossible to read. And of course, there are different kinds of
+formats.
+
+Tooling helps, and Orchard provides functionality to parse and analyze
+stacktraces to such tools. Orchard comes with parsers for some of the
+commonly used formats in which stacktraces are printed, and an
+analyzer that enriches a stacktrace with additional information.
+
+** Parser
+
+The Orchard stacktrace parser can read stacktraces in various
+formats. Given an input, the parser applies some transformations to it
+(unwrapping an EDN string for example) and passes the result to the
+parser functions registered in the
+=orchard.stacktrace.parser/default-parsers= var. Each of the
+registered parsers is tried in order and the first parser that
+succeeds wins.
+
+On success a parser returns a Clojure map with a similar structure as
+=Throwable->map=.
+
+On failure the parser returns a map with an =:error= key, and possibly
+other keys describing the error.
+
+A successful parse result can be given to the Orchard analyzer to
+enrich it with more information.
+
+*** Stacktrace data format
+
+An Orchard stacktrace parser transforms input into a parse result. On
+success, the parse result is a enhanced version of the Clojure data
+representation of a Throwable, a map with the following keys:
+
+- =:cause= The root cause message as a string.
+- =:phase= The error phase (optional).
+- =:via= The cause chain, with each cause having the keys:
+  - =:at= The top stack element of the cause as a vector (optional).
+  - =:data= The =ex-data= of the cause as a map (optional).
+  - =:message= The exception message of the cause as a string.
+  - =:type= The exception of the cause as a symbol.
+  - =:trace= The stack elements (optional, extended by Orchard).
+- =:trace=  The root cause stack elements
+
+This is mostly the same format as used by =Throwable->map= in newer
+Clojure versions, except for the additional =:trace= key in the cause
+maps of =:via=.
+
+*** Supported formats
+
+Stacktraces come in different formats. Orchard supports the following
+flavors:
+
+- =:aviso= Stacktraces printed with the [[https://ioavisopretty.readthedocs.io/en/latest/exceptions.html][write-exception]] function of
+  the [[https://github.com/AvisoNovate/pretty][Aviso]] library.
+
+- =:clojure.tagged-literal= Stacktraces printed as a tagged literal,
+  like a [[https://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html][java.lang.Throwable]] printed with the [[https://clojure.github.io/clojure/branch-master/clojure.core-api.html#clojure.core/pr][pr]] function.
+
+- =:clojure.stacktrace= Stacktraces printed with the [[https://clojure.github.io/clojure/branch-master/clojure.stacktrace-api.html#clojure.stacktrace/print-cause-trace][print-cause-trace]]
+  function of the [[https://clojure.github.io/clojure/branch-master/clojure.stacktrace-api.html][clojure.stacktrace]] namespace.
+
+- =:clojure.repl= Stacktraces printed with the [[https://clojure.github.io/clojure/branch-master/clojure.repl-api.html#clojure.repl/pst][pst]] function of the
+  [[https://clojure.github.io/clojure/branch-master/clojure.repl-api.html][clojure.repl]] namespace.
+
+- =:java= Stacktraces printed with the [[https://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html#printStackTrace--][printStackTrace]] method of
+  [[https://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html][java.lang.Throwable]].
+
+*** Usage
+
+Let's say you want to parse the following stacktrace string and turn
+it back into a data structure for further processing.
+
+#+begin_src clojure :exports code :results silent
+  (def my-stacktrace-str
+    (str "clojure.lang.ExceptionInfo: BOOM-1 {:boom \"1\"}\n"
+         "  at java.base/java.lang.Thread.run(Thread.java:829)"))
+#+end_src
+
+The easiest way to do this is to pass the string to the
+=orchard.stacktrace.parser/parse= function. It will try all registered
+parsers and returns the first successful parse result.
+
+#+begin_src clojure :exports code :results silent
+  (require '[orchard.stacktrace.parser :as stacktrace.parser])
+
+  (def my-stacktrace-data
+    (stacktrace.parser/parse my-stacktrace-str))
+#+end_src
+
+On success the parser will return a Clojure map in the
+=Throwable->map= format. For the input used above, this data structure
+looks like this:
+
+#+begin_src clojure :exports both :results output :wrap src clojure
+  (clojure.pprint/pprint my-stacktrace-data)
+#+end_src
+
+#+RESULTS:
+#+begin_src clojure
+{:cause "BOOM-1",
+ :data {:boom "1"},
+ :trace [[java.base/java.lang.Thread run "Thread.java" 829]],
+ :via
+ [{:at [java.base/java.lang.Thread run "Thread.java" 829],
+   :message "BOOM-1",
+   :type clojure.lang.ExceptionInfo,
+   :trace [[java.base/java.lang.Thread run "Thread.java" 829]],
+   :data {:boom "1"}}],
+ :stacktrace-type :java}
+#+end_src
+
+Tip: If you know in advance with what kind of stacktrace you are
+dealing with, pass it directly to the parser for the given format.
+
+*** Creating a parser
+
+To add support for another stacktrace format, please create a new
+parser under the =orchard.stacktrace.parser= namespace and add it to
+the =orchard.stacktrace.parser/default-parsers= var. The parser should
+be a function that accepts a single argument, the input (typically a
+string), and returns a map. The parser function should follow the
+following rules:
+
+- On success, the parser should return the stacktrace as a map. The
+  map should be in the =Throwable->map= format described above with a
+  =:stacktrace-type= key that contains the type of stacktrace as a
+  keyword.
+
+- On error, the parser should return a map with an =:error= key and
+  possibly others describing why the input could not be parsed. We use
+  =:incorrect= if the input does not match the grammar, and
+  =:unsupported= if the input type is not supported by the parser.
+
+- Ideally, the parser should be tolerant to any garbage before and
+  after the stacktrace to be parsed. This is to not put the burden of
+  exactly figuring out where a stacktrace starts and ends onto
+  clients.
+
+- When skipping garbage at the beginning of a stacktrace do it
+  efficiently. For example, instead of skipping garbage character by
+  character and trying your parser with the rest of the string, use
+  the =orchard.stacktrace.parser.util/seek-to-regex= function to
+  directly skip to the beginning of the stacktrace, if possible.
+
+- Most of the parsers in Orchard are implemented with [[https://github.com/Engelberg/instaparse][Instaparse]] and
+  have a [[https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form][BNF]] grammar describing the format of the stacktrace. Try to
+  come up with an Instagram grammar for the new stacktrace format as
+  well, unless you have a better, simpler or more efficient way of
+  parsing it (like the Clojure tagged literal parser for example).
+
+*** Instaparse Tips & Tricks
+
+Writing a grammar for a stacktrace format might be challenging at
+times, especially when garbage in the input is involved, which might
+introduce ambiguities in your grammar. Here are some tips and trick
+for writing Instaparse grammars:
+
+- Read the [[https://github.com/Engelberg/instaparse][documentation]], it is good and has many examples.
+
+- Start with the most simple parser, try to pass the exception class
+  or name before building up.
+
+- Use the =:start= parameter of the Instaparse parser, to [[https://github.com/Engelberg/instaparse#parsing-from-another-start-rule][parse input
+  from another start rule]]. This is useful if your grammar got complex,
+  but you want to try parsing of an individual rule.
+
+- Be aware of [[https://github.com/Engelberg/instaparse#regular-expressions-a-word-of-warning][greedy regex behavior]].
+
+- When testing input try it against the raw Instaparse parser first,
+  and only apply the Instaparse [[https://github.com/Engelberg/instaparse#transforming-the-tree][transformations]] when the parser works.
+
+- If your parser fails on an input, [[https://github.com/Engelberg/instaparse#revealing-hidden-information][reveal hidden information]] to get a
+  better understanding of what happened.
+
+** Analyzer
+
+The Orchard stacktrace analyzer transforms a stacktrace into an
+analysis. An analysis is a sequence of Clojure maps, one for each of
+the causes of the stacktrace, with the following keys:
+
+- =:class= The exception class as a string.
+- =:message= The exception message as a string.
+- =:stacktrace= The stacktrace frames, a list of maps.
+- =:data= The exception data.
+- =:location= The location formation of the exception.
+
+A frame in the =:stacktrace= is a map with the following keys:
+
+- =:class= The class name of the frame invocation.
+- =:file-url= The URL of the frame source file.
+- =:file= The file name of the frame source.
+- =:flags= The flags of the frame.
+- =:line= The line number of the frame source.
+- =:method= The method or function name of the frame invocation.
+- =:name= The name of the frame, typically the class and method of the invocation.
+- =:type= The type of invocation (=:java=, =:tooling=, etc).
+
+The analyzer accepts either an instance of =java.lang.Throwable= or a
+Clojure map in the =Throwable->map= format as input.
+
+*** Usage
+
+We can analyze our previously parsed stacktrace by calling the
+=orchard.stacktrace.analyzer/analyze= function on it.
+
+#+begin_src clojure :exports both :results pp :wrap src clojure
+  (require '[orchard.stacktrace.analyzer :as stacktrace.analyzer])
+  (stacktrace.analyzer/analyze my-stacktrace-data)
+#+end_src
+
+#+RESULTS:
+#+begin_src clojure
+[{:class "clojure.lang.ExceptionInfo",
+  :message "BOOM-1",
+  :stacktrace
+  ({:name "java.lang.Thread/run",
+    :file "Thread.java",
+    :line 829,
+    :class "java.lang.Thread",
+    :method "run",
+    :type :java,
+    :flags #{:java},
+    :file-url
+    "jar:file:/usr/lib/jvm/openjdk-11/lib/src.zip!/java.base/java/lang/Thread.java"}),
+  :data "{:boom \"1\"}",
+  :location {}}]
+#+end_src
+
+We get back a sequence of maps, one for each cause, which contain
+additional information about each frame discovered from the class path.
+
+** Development
+*** Deployment
+
+Here's how to deploy to Clojars:
+
+#+begin_src sh
+git tag -a v0.1.0 -m "0.1.0"
+git push --tags
+#+end_src
+
+** Changelog
+
+[[CHANGELOG.md][CHANGELOG.md]]
+
+** License
+
+Copyright © 2022 Cider Contributors
+
+Distributed under the Eclipse Public License, the same as Clojure.
