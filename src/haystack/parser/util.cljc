@@ -40,7 +40,7 @@
   {:added "0.1.0"}
   [parser input]
   (let [result (try (insta/parse parser input)
-                    (catch Exception e
+                    (catch #?(:clj Exception :cljs js/Error) e
                       (error-unsupported-input input e)))]
     (if-let [failure (insta/get-failure result)]
       (error-incorrect-input input failure)
@@ -86,4 +86,4 @@
   {:added "0.1.0"}
   [s]
   (try (edn/read-string {:default tagged-literal} s)
-       (catch Exception _)))
+       (catch #?(:clj Exception :cljs js/Error) _)))

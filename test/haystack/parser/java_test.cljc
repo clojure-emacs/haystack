@@ -1,13 +1,13 @@
 (ns haystack.parser.java-test
   (:require [clojure.test :refer [deftest is testing]]
             [haystack.parser.java :as parser]
-            [haystack.parser.test :as test]))
+            [haystack.parser.test :as test #?(:clj :refer :cljs :refer-macros) [fixture]]))
 
-(defn- parse-fixture [name]
-  (some-> name test/read-fixture parser/parse-stacktrace))
+(defn- parse [s]
+  (parser/parse-stacktrace s))
 
 (deftest parse-stacktrace-boom-test
-  (let [{:keys [cause data trace stacktrace-type via]} (parse-fixture :boom.java)]
+  (let [{:keys [cause data trace stacktrace-type via]} (parse (fixture :boom.java))]
     (testing ":stacktrace-type"
       (is (= :java stacktrace-type)))
     (testing "throwable cause"
@@ -57,7 +57,7 @@
                (last trace)))))))
 
 (deftest parse-stacktrace-divide-by-zero-test
-  (let [{:keys [cause data trace stacktrace-type via]} (parse-fixture :divide-by-zero.java)]
+  (let [{:keys [cause data trace stacktrace-type via]} (parse (fixture :divide-by-zero.java))]
     (testing ":stacktrace-type"
       (is (= :java stacktrace-type)))
     (testing "throwable cause"
@@ -81,7 +81,7 @@
         (is (= '[java.base/java.lang.Thread run "Thread.java" 829] (last trace)))))))
 
 (deftest parse-stacktrace-short-test
-  (let [{:keys [cause data trace stacktrace-type via]} (parse-fixture :short.java)]
+  (let [{:keys [cause data trace stacktrace-type via]} (parse (fixture :short.java))]
     (testing ":stacktrace-type"
       (is (= :java stacktrace-type)))
     (testing "throwable cause"
@@ -112,11 +112,13 @@
       (is (= "" input))
       (is (= {:index 0
               :reason
-              [{:tag :regexp, :expecting "[a-zA-Z0-9_$/-]"}
-               {:tag :regexp, :expecting "[^\\S\\r\\n]+"}]
+              #?(:clj [{:tag :regexp, :expecting "[a-zA-Z0-9_$/-]"}
+                       {:tag :regexp, :expecting "[^\\S\\r\\n]+"}]
+                 :cljs [{:tag :regexp, :expecting "/^[a-zA-Z0-9_$\\/-]/"}
+                        {:tag :regexp, :expecting "/^[^\\S\\r\\n]+/"}])
               :line 1
               :column 1
-              :text nil}
+              :text #?(:clj nil :cljs "")}
              (test/stringify-regexp failure))))))
 
 (deftest parse-stacktrace-unsupported-input-test

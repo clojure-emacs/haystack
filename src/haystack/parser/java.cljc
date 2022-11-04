@@ -1,18 +1,54 @@
-(ns haystack.parser.clojure.repl
-  "Parser for stacktraces in the `clojure.repl` format."
+(ns haystack.parser.java
+  "Parser for stacktraces in the Java format."
   {:added "0.1.0"
    :author "r0man"}
   (:require [clojure.edn :as edn]
-            [clojure.java.io :as io]
             [haystack.parser.util :as util]
-            [instaparse.core  :as insta :refer [defparser]]))
+            [instaparse.core #?(:clj :refer :cljs :refer-macros) [defparser]]))
 
 (def ^:private stacktrace-start-regex
-  "The regular expression matching the start of a `clojure.repl/pst` stacktrace."
-  #"(?s)([a-zA-Z0-9_$/-]+)\s+.*\n\s+([a-zA-Z0-9_$/.-]+)\s+\(([a-zA-Z0-9_$/.-]+):(\d+)\)")
+  "The regular expression matching the start of an Java stacktrace."
+  #"(?s)(([^\s]+):\s([^\n\r]+)\s+at+)")
 
 (defparser ^:private parser
-  (io/resource "haystack/parser/clojure.repl.bnf"))
+  "S = <whitespace*> stacktrace <garbage>?
+
+   <stacktrace> = (exception causes)
+   <garbage> = (newline | whitespace | #'.')+
+
+   exception = type <double-colon> <whitespace> message (<whitespace> data)? <newline> trace
+   type = class
+   message = #'.'*
+   data = lbrace #'.'* rbrace
+
+   <causes> = Epsilon | <newline> cause causes
+   <cause> = <caused-by> exception <newline> <cause-more>
+   cause-more = <whitespace> <dot> <dot> <dot> <whitespace> number <whitespace> <more>
+
+   trace = frame frames
+   <frames> = Epsilon | <newline> frame frames
+   <frame> = <whitespace> <at> <whitespace> call
+   call = class <dot> method <lparen> file <double-colon> number <rparen>
+
+   at = 'at'
+   caused-by = 'Caused by: '
+   class = (simple-name (dot simple-name)*)
+   file = simple-name (dot simple-name)
+   method = simple-name
+   more = 'more'
+
+   <digit> = #'[0-9]'
+   <dot> = '.'
+
+   double-colon = ':'
+   newline = #'[\\n\\r]'
+   number = '-'? digit+
+   lparen = '('
+   rparen = ')'
+   <lbrace> = '{'
+   <rbrace> = '}'
+   simple-name = #'[a-zA-Z0-9_$/-]'+
+   whitespace = #'[^\\S\\r\\n]+'")
 
 (defn- transform-data
   "Transform a :data node into the `Throwable->map` format."
@@ -63,7 +99,7 @@
   [:trace (vec frames)])
 
 (def ^:private transformations
-  "The Instaparse `clojure.repl` transformations."
+  "The Instaparse Java transformations."
   {:S transform-stacktrace
    :call vector
    :class transform-class
@@ -78,7 +114,7 @@
    :trace transform-trace})
 
 (defn parse-stacktrace
-  "Parse `input` as a stacktrace in `clojure.repl` format."
+  "Parse `input` as a stacktrace in the Java format."
   {:added "0.1.0"}
   [input]
-  (util/parse-stacktrace parser transformations :clojure.repl stacktrace-start-regex input))
+  (util/parse-stacktrace parser transformations :java stacktrace-start-regex input))
