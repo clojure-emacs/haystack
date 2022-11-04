@@ -6,7 +6,8 @@
   :url "https://github.com/clojure-emacs/haystack"
   :license {:name "Eclipse Public License"
             :url "https://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[instaparse "1.4.12"]]
+  :dependencies [[cider/orchard "0.11.0"]
+                 [instaparse "1.4.12"]]
   :pedantic? ~(if (System/getenv "CI")
                 :abort
                 ;; :pedantic? can be problematic for certain local dev workflows:
@@ -43,4 +44,6 @@
              :clj-kondo [:test
                          {:dependencies [[clj-kondo "2022.10.14"]]}]
 
-             :deploy {:source-paths [".circleci/deploy"]}})
+             :deploy {:source-paths [".circleci/deploy"]}
+             :repl {:resource-paths ["test-resources"]}
+             :test {:resource-paths ["test-resources"]}})

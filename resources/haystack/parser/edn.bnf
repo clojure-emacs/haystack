@@ -1,0 +1,107 @@
+(* An Instaparse EBNF grammar for Clojure *)
+
+<forms> := form *;
+<form> := special_form | literal | list | vector | map | reader_macro;
+
+(* TODO: Special forms have special rules which are not defined yet *)
+<special_form> := def | if | do | let | quote | var | fn | loop | recur | throw | try | monitor-enter | monitor-exit
+def := <'('> <'def'> forms <')'>;
+if := <'('> <'if'> forms <')'>;
+do := <'('> <'do'> forms <')'>;
+let := <'('> <'let'> forms <')'>;
+quote := <'('> <'quote'> forms <')'>;
+var := <'('> <'var'> forms <')'>;
+fn := <'('> <'fn'> forms <')'>;
+loop := <'('> <'loop'> forms <')'>;
+recur := <'('> <'recur'> forms <')'>;
+throw := <'('> <'throw'> forms <')'>;
+try := <'('> <'try'> forms <')'>;
+monitor-enter := <'('> <'monitor-enter'> forms <')'>;
+monitor-exit := <'('> <'monitor-exit'> forms <')'>;
+
+(* TODO: If special forms are more complex, list should still reject malformed special forms *)
+list := !special_form <'('> forms <')'>;
+vector := <'['> forms <']'>;
+map := <'{'> (form form)* <'}'>;
+set := <'#{'> forms <'}'>;
+
+(* TODO: These can be symbols or params, it's contextual *)
+lambda_param := #"%[1..9][0...9]*" | '%&' | '%integer';
+
+<reader_macro> := lambda
+                | meta_data
+                | regex
+                | var_quote
+                | reader_conditional
+                | set
+                | tag
+                | reader_tag
+                | deref
+                | quote
+                | backtick
+                | unquote
+                | unquote_splicing
+                | gensym
+                | discard
+                | comment;
+
+quote := <'\''> form;
+backtick := <'`'> form;
+unquote_splicing := <'~@'> form;
+unquote := !unquote_splicing <'~'> form;
+deref := <'@'> form;
+var_quote := <'#\''> SYMBOL;
+tag := <'^'> form form;
+meta_data := <'#^'> (map form | form);
+
+(* TODO: lambda_params only make sense in here *)
+lambda := <'#('> form* <')'>;
+
+reader_conditional := <'#+'> form form;
+reader_tag := <'#'> SYMBOL form;
+
+discard := <'#_'> form;
+comment := <';'> #"[^\r\n]*";
+
+<literal> := string
+           | number
+           | character
+           | nil
+           | boolean
+           | keyword
+           | current_namespace_keyword
+           | special_form
+           | symbol
+           | lambda_param;
+
+boolean := 'true' | 'false';
+nil := 'nil';
+
+(* TODO: it would be interesting to support more string literals and transform them to Clojure *)
+(* TODO: how can we discard the quotes? *)
+string := #"\"[^\"]*\"";
+regex := #"#\"[^\"]*\"";
+
+<number> := double | hex | binary | bign | long | ratio;
+double := #"-?[0-9]*\.[0-9]+([eE]-?[0-9]+)?"
+        | #"-?Infinity"
+        | #"-?NaN";
+hex := #"0[xX][0-9a-fA-F]+";
+binary := #"0[bB][10]+";
+bign := #"-?[0-9]+[nN]";
+ratio := #"-?[0-9]+/-?[0-9]+";
+long := !ratio !double !hex !binary !bign #"-?[0-9]+[lL]?";
+
+<character>  := char_named | char_u | char_any;
+char_u := #"\\u[0-9D-Fd-f][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]";
+char_named := '\\newline' | '\\return' | '\\space' | '\\tab' | '\\formfeed' | '\\backspace';
+char_any := !char_named !char_u #"\\.";
+
+(* TODO: The concept of a name is repeated; tokens appear in a single regex when using auto-whitespace. *)
+current_namespace_keyword := #"::[^\d\^`\\\"#~@:()\[\]{}\s,][^\^`\\\"#~@()\[\]{}\s,]*";
+keyword := !current_namespace_keyword #":[^\d\^`\\\"#~@:()\[\]{}\s,][^\^`\\\"#~@()\[\]{}\s,]*";
+symbol := SYMBOL;
+gensym := !boolean #"[^/\.\d\^`\\\"#~@:()\[\]{}\s,][^/\.\^`\\\"#~@()\[\]{}\s,]*#";
+
+(* TODO: under some circumstances, gensyms are regular symbols, it's contextual *)
+<SYMBOL> := !boolean !gensym #"[^\d\^`\\\"#~@:()\[\]{}\s,][^\^`\\\"#~@()\[\]{}\s,]*"
