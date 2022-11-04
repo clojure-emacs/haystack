@@ -6,7 +6,7 @@
   :url "https://github.com/clojure-emacs/haystack"
   :license {:name "Eclipse Public License"
             :url "https://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies []
+  :dependencies [[instaparse "1.4.12"]]
   :pedantic? ~(if (System/getenv "CI")
                 :abort
                 ;; :pedantic? can be problematic for certain local dev workflows:
