@@ -1,6 +1,7 @@
 (ns haystack.parser
   "The haystack parser."
-  {:added "0.11.0"}
+  {:added "0.1.0"
+   :author "r0man"}
   (:require [haystack.parser.aviso :as aviso]
             [haystack.parser.clojure.repl :as clojure.repl]
             [haystack.parser.clojure.stacktrace :as clojure.stacktrace]
@@ -9,7 +10,7 @@
             [haystack.parser.java :as java]
             [haystack.parser.util :as util]))
 
-(def ^{:added "0.11.0"} default-parsers
+(def ^{:added "0.1.0"} default-parsers
   "The default stacktrace parsers."
   [clojure.throwable/parse-stacktrace
    clojure.tagged-literal/parse-stacktrace
@@ -18,7 +19,7 @@
    clojure.repl/parse-stacktrace
    aviso/parse-stacktrace])
 
-(def ^{:added "0.11.0"} default-input-transformations
+(def ^{:added "0.1.0"} default-input-transformations
   "The default input transformations.
 
   - `identity` Do nothing, forward input to the parser.
@@ -36,7 +37,7 @@
 
   If `parsers` or `input-transformations` are nil, `default-parsers`
   and `default-input-transformations` will be used instead."
-  {:added "0.11.0"}
+  {:added "0.1.0"}
   ([stacktrace]
    (parse stacktrace nil))
   ([stacktrace {:keys [parsers input-transformations]}]

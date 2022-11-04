@@ -1,6 +1,7 @@
 (ns haystack.parser.clojure.stacktrace
   "Parser for stacktraces in the `clojure.stacktrace` format."
-  {:added "0.11.0"}
+  {:added "0.1.0"
+   :author "r0man"}
   (:require [clojure.edn :as edn]
             [clojure.java.io :as io]
             [haystack.parser.util :as util]
@@ -79,6 +80,6 @@
 
 (defn parse-stacktrace
   "Parse `input` as a stacktrace in `clojure.stacktrace` format."
-  {:added "0.11.0"}
+  {:added "0.1.0"}
   [input]
   (util/parse-stacktrace parser transformations :clojure.stacktrace stacktrace-start-regex input))

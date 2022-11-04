@@ -1,6 +1,7 @@
 (ns haystack.parser.clojure.throwable
   "Convert `java.lang.Throwable` instances into the `Throwable->map` data format."
-  {:added "0.11.0"}
+  {:added "0.1.0"
+   :author "r0man"}
   (:refer-clojure :exclude [StackTraceElement->vec Throwable->map])
   (:require [haystack.parser.util :as util]))
 
@@ -12,7 +13,7 @@
 
 (defn StackTraceElement->vec
   "Constructs a data representation for a StackTraceElement: [class method file line]"
-  {:added "0.11.0"}
+  {:added "0.1.0"}
   [^StackTraceElement o]
   [(symbol (.getClassName o)) (symbol (.getMethodName o)) (.getFileName o) (.getLineNumber o)])
 
@@ -26,7 +27,7 @@
              :data - ex-data
              :at - top stack element
     :trace - root cause stack elements"
-  {:added "0.11.0"}
+  {:added "0.1.0"}
   [^Throwable o]
   (let [base (fn [^Throwable t]
                (merge {:type (symbol (.getName (class t)))}
@@ -58,7 +59,7 @@
 
 (defn parse-stacktrace
   "Parse `input` as a `java.lang.Throwable` instance."
-  {:added "0.11.0"}
+  {:added "0.1.0"}
   [input]
   (if (instance? Throwable input)
     (assoc (Throwable->map input) :stacktrace-type :throwable)
