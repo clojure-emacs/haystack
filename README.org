@@ -16,14 +16,15 @@ worst, a printed exception buried inside another string, almost
 impossible to read. And of course, there are different kinds of
 formats.
 
-Tooling helps, and Orchard provides functionality to parse and analyze
-stacktraces to such tools. Orchard comes with parsers for some of the
-commonly used formats in which stacktraces are printed, and an
-analyzer that enriches a stacktrace with additional information.
+Tooling helps, and Haystack provides functionality to parse and
+analyze stacktraces to such tools. Haystack comes with parsers for
+some of the commonly used formats in which stacktraces are printed,
+and an analyzer that enriches a stacktrace with additional
+information.
 
 ** Parser
 
-The Orchard stacktrace parser can read stacktraces in various
+The Haystack stacktrace parser can read stacktraces in various
 formats. Given an input, the parser applies some transformations to it
 (unwrapping an EDN string for example) and passes the result to the
 parser functions registered in the
@@ -37,12 +38,12 @@ On success a parser returns a Clojure map with a similar structure as
 On failure the parser returns a map with an =:error= key, and possibly
 other keys describing the error.
 
-A successful parse result can be given to the Orchard analyzer to
+A successful parse result can be given to the Haystack analyzer to
 enrich it with more information.
 
 *** Stacktrace data format
 
-An Orchard stacktrace parser transforms input into a parse result. On
+An Haystack stacktrace parser transforms input into a parse result. On
 success, the parse result is a enhanced version of the Clojure data
 representation of a Throwable, a map with the following keys:
 
@@ -53,7 +54,7 @@ representation of a Throwable, a map with the following keys:
   - =:data= The =ex-data= of the cause as a map (optional).
   - =:message= The exception message of the cause as a string.
   - =:type= The exception of the cause as a symbol.
-  - =:trace= The stack elements (optional, extended by Orchard).
+  - =:trace= The stack elements (optional, extended by Haystack).
 - =:trace=  The root cause stack elements
 
 This is mostly the same format as used by =Throwable->map= in newer
@@ -62,7 +63,7 @@ maps of =:via=.
 
 *** Supported formats
 
-Stacktraces come in different formats. Orchard supports the following
+Stacktraces come in different formats. Haystack supports the following
 flavors:
 
 - =:aviso= Stacktraces printed with the [[https://ioavisopretty.readthedocs.io/en/latest/exceptions.html][write-exception]] function of
@@ -129,7 +130,7 @@ dealing with, pass it directly to the parser for the given format.
 
 ** Analyzer
 
-The Orchard stacktrace analyzer transforms a stacktrace into an
+The Haystack stacktrace analyzer transforms a stacktrace into an
 analysis. An analysis is a sequence of Clojure maps, one for each of
 the causes of the stacktrace, with the following keys:
 
@@ -224,7 +225,7 @@ following rules:
   the =haystack.parser.util/seek-to-regex= function to
   directly skip to the beginning of the stacktrace, if possible.
 
-- Most of the parsers in Orchard are implemented with [[https://github.com/Engelberg/instaparse][Instaparse]] and
+- Most of the parsers in Haystack are implemented with [[https://github.com/Engelberg/instaparse][Instaparse]] and
   have a [[https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form][BNF]] grammar describing the format of the stacktrace. Try to
   come up with an Instagram grammar for the new stacktrace format as
   well, unless you have a better, simpler or more efficient way of
