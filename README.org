@@ -27,7 +27,7 @@ The Orchard stacktrace parser can read stacktraces in various
 formats. Given an input, the parser applies some transformations to it
 (unwrapping an EDN string for example) and passes the result to the
 parser functions registered in the
-=orchard.stacktrace.parser/default-parsers= var. Each of the
+=haystack.parser/default-parsers= var. Each of the
 registered parsers is tried in order and the first parser that
 succeeds wins.
 
@@ -92,11 +92,11 @@ it back into a data structure for further processing.
 #+end_src
 
 The easiest way to do this is to pass the string to the
-=orchard.stacktrace.parser/parse= function. It will try all registered
+=haystack.parser/parse= function. It will try all registered
 parsers and returns the first successful parse result.
 
 #+begin_src clojure :exports code :results silent
-  (require '[orchard.stacktrace.parser :as stacktrace.parser])
+  (require '[haystack.parser :as stacktrace.parser])
 
   (def my-stacktrace-data
     (stacktrace.parser/parse my-stacktrace-str))
@@ -127,42 +127,6 @@ looks like this:
 Tip: If you know in advance with what kind of stacktrace you are
 dealing with, pass it directly to the parser for the given format.
 
-*** Creating a parser
-
-To add support for another stacktrace format, please create a new
-parser under the =orchard.stacktrace.parser= namespace and add it to
-the =orchard.stacktrace.parser/default-parsers= var. The parser should
-be a function that accepts a single argument, the input (typically a
-string), and returns a map. The parser function should follow the
-following rules:
-
-- On success, the parser should return the stacktrace as a map. The
-  map should be in the =Throwable->map= format described above with a
-  =:stacktrace-type= key that contains the type of stacktrace as a
-  keyword.
-
-- On error, the parser should return a map with an =:error= key and
-  possibly others describing why the input could not be parsed. We use
-  =:incorrect= if the input does not match the grammar, and
-  =:unsupported= if the input type is not supported by the parser.
-
-- Ideally, the parser should be tolerant to any garbage before and
-  after the stacktrace to be parsed. This is to not put the burden of
-  exactly figuring out where a stacktrace starts and ends onto
-  clients.
-
-- When skipping garbage at the beginning of a stacktrace do it
-  efficiently. For example, instead of skipping garbage character by
-  character and trying your parser with the rest of the string, use
-  the =orchard.stacktrace.parser.util/seek-to-regex= function to
-  directly skip to the beginning of the stacktrace, if possible.
-
-- Most of the parsers in Orchard are implemented with [[https://github.com/Engelberg/instaparse][Instaparse]] and
-  have a [[https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form][BNF]] grammar describing the format of the stacktrace. Try to
-  come up with an Instagram grammar for the new stacktrace format as
-  well, unless you have a better, simpler or more efficient way of
-  parsing it (like the Clojure tagged literal parser for example).
-
 ** Analyzer
 
 The Orchard stacktrace analyzer transforms a stacktrace into an
@@ -192,10 +156,10 @@ Clojure map in the =Throwable->map= format as input.
 *** Usage
 
 We can analyze our previously parsed stacktrace by calling the
-=orchard.stacktrace.analyzer/analyze= function on it.
+=haystack.analyzer/analyze= function on it.
 
 #+begin_src clojure :exports both :results pp :wrap src clojure
-  (require '[orchard.stacktrace.analyzer :as stacktrace.analyzer])
+  (require '[haystack.analyzer :as stacktrace.analyzer])
   (stacktrace.analyzer/analyze my-stacktrace-data)
 #+end_src
 
@@ -229,6 +193,42 @@ Here's how to deploy to Clojars:
 git tag -a v0.1.0 -m "0.1.0"
 git push --tags
 #+end_src
+
+*** Creating a parser
+
+To add support for another stacktrace format, please create a new
+parser under the =haystack.parser= namespace and add it to
+the =haystack.parser/default-parsers= var. The parser should
+be a function that accepts a single argument, the input (typically a
+string), and returns a map. The parser function should follow the
+following rules:
+
+- On success, the parser should return the stacktrace as a map. The
+  map should be in the =Throwable->map= format described above with a
+  =:stacktrace-type= key that contains the type of stacktrace as a
+  keyword.
+
+- On error, the parser should return a map with an =:error= key and
+  possibly others describing why the input could not be parsed. We use
+  =:incorrect= if the input does not match the grammar, and
+  =:unsupported= if the input type is not supported by the parser.
+
+- Ideally, the parser should be tolerant to any garbage before and
+  after the stacktrace to be parsed. This is to not put the burden of
+  exactly figuring out where a stacktrace starts and ends onto
+  clients.
+
+- When skipping garbage at the beginning of a stacktrace do it
+  efficiently. For example, instead of skipping garbage character by
+  character and trying your parser with the rest of the string, use
+  the =haystack.parser.util/seek-to-regex= function to
+  directly skip to the beginning of the stacktrace, if possible.
+
+- Most of the parsers in Orchard are implemented with [[https://github.com/Engelberg/instaparse][Instaparse]] and
+  have a [[https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form][BNF]] grammar describing the format of the stacktrace. Try to
+  come up with an Instagram grammar for the new stacktrace format as
+  well, unless you have a better, simpler or more efficient way of
+  parsing it (like the Clojure tagged literal parser for example).
 
 *** Instaparse Tips & Tricks
 
