@@ -1,0 +1,125 @@
+(ns haystack.stacktrace.parser.clojure.repl-test
+  (:require [clojure.test :refer [deftest is testing]]
+            [haystack.stacktrace.parser.clojure.repl :as parser]
+            [haystack.stacktrace.parser.test :as test]))
+
+(defn- parse-fixture [name]
+  (some-> name test/read-fixture parser/parse-stacktrace))
+
+(deftest parse-throwable-test
+  (let [{:keys [cause data trace stacktrace-type via]} (parse-fixture :boom.clojure.repl)]
+    (testing ":stacktrace-type"
+      (is (= :clojure.repl stacktrace-type)))
+    (testing "throwable cause"
+      (is (= "BOOM-3" cause)))
+    (testing ":data"
+      (is (= {:boom "3"} data)))
+    (testing ":via"
+      (is (= 3 (count via)))
+      (testing "first cause"
+        (let [{:keys [at data message trace type]} (nth via 0)]
+          (is (= '[clojure.lang.Compiler$InvokeExpr eval "Compiler.java" 3706] at))
+          (is (= {:boom "1"} data))
+          (is (= "BOOM-1" message))
+          (is (= 'ExceptionInfo type))
+          (is (= '[[clojure.lang.Compiler$InvokeExpr eval "Compiler.java" 3706]
+                   [clojure.lang.Compiler$DefExpr eval "Compiler.java" 457]
+                   [clojure.lang.Compiler eval "Compiler.java" 7186]]
+                 (take 3 trace)))))
+      (testing "second cause"
+        (let [{:keys [at data message trace type]} (nth via 1)]
+          (is (= '[clojure.lang.Compiler$InvokeExpr eval "Compiler.java" 3706] at))
+          (is (= {:boom "2"} data))
+          (is (= "BOOM-2" message))
+          (is (= 'ExceptionInfo type))
+          (is (= '[[clojure.lang.Compiler$InvokeExpr eval "Compiler.java" 3706]
+                   [clojure.lang.Compiler$InvokeExpr eval "Compiler.java" 3705]
+                   [clojure.lang.Compiler$DefExpr eval "Compiler.java" 457]]
+                 (take 3 trace)))))
+      (testing "third cause"
+        (let [{:keys [at data message trace type]} (nth via 2)]
+          (is (= '[clojure.lang.Compiler$InvokeExpr eval "Compiler.java" 3706] at))
+          (is (= {:boom "3"} data))
+          (is (= "BOOM-3" message))
+          (is (= 'ExceptionInfo type))
+          (is (= '[[clojure.lang.Compiler$InvokeExpr eval "Compiler.java" 3706]
+                   [clojure.lang.Compiler$InvokeExpr eval "Compiler.java" 3705]
+                   [clojure.lang.Compiler$InvokeExpr eval "Compiler.java" 3705]]
+                 (take 3 trace))))))
+    (testing ":trace"
+      (doseq [element trace]
+        (is (test/stacktrace-element? element) element))
+      (testing "first frame"
+        (is (= '[clojure.lang.Compiler$InvokeExpr eval "Compiler.java" 3706] (first trace))))
+      (testing "last frame"
+        (is (= '[clojure.lang.Compiler$InvokeExpr eval "Compiler.java" 3705] (last trace)))))))
+
+(deftest parse-stacktrace-divide-by-zero-test
+  (let [{:keys [cause data trace stacktrace-type via]} (parse-fixture :divide-by-zero.clojure.repl)]
+    (testing ":stacktrace-type"
+      (is (= :clojure.repl stacktrace-type)))
+    (testing "throwable cause"
+      (is (= "Divide by zero" cause)))
+    (testing ":data"
+      (is (= nil data)))
+    (testing ":via"
+      (is (= 1 (count via)))
+      (testing "first cause"
+        (let [{:keys [at data message type]} (nth via 0)]
+          (is (= '[clojure.lang.Numbers divide "Numbers.java" 188] at))
+          (is (= nil data))
+          (is (= "Divide by zero" message))
+          (is (= 'ArithmeticException type)))))
+    (testing ":trace"
+      (doseq [element trace]
+        (is (test/stacktrace-element? element) element))
+      (testing "first frame"
+        (is (= '[clojure.lang.Numbers divide "Numbers.java" 188] (first trace))))
+      (testing "last frame"
+        (is (= '[clojure.lang.Compiler eval "Compiler.java" 7136] (last trace)))))))
+
+(deftest parse-stacktrace-short-test
+  (let [{:keys [cause data trace stacktrace-type via]} (parse-fixture :short.clojure.repl)]
+    (testing ":stacktrace-type"
+      (is (= :clojure.repl stacktrace-type)))
+    (testing "throwable cause"
+      (is (= "BOOM-1" cause)))
+    (testing ":data"
+      (is (= {:boom "1"} data)))
+    (testing ":via"
+      (is (= 1 (count via)))
+      (testing "first cause"
+        (let [{:keys [at data message type]} (nth via 0)]
+          (is (= '[java.lang.Thread run "Thread.java" 829] at))
+          (is (= {:boom "1"} data))
+          (is (= "BOOM-1" message))
+          (is (= 'ExceptionInfo type)))))
+    (testing ":trace"
+      (doseq [element trace]
+        (is (test/stacktrace-element? element) element))
+      (testing "first frame"
+        (is (= '[java.lang.Thread run "Thread.java" 829] (first trace))))
+      (testing "last frame"
+        (is (= '[java.lang.Thread run "Thread.java" 829] (last trace)))))))
+
+(deftest parse-stacktrace-incorrect-input-test
+  (testing "parsing a string not matching the grammar"
+    (let [{:keys [error failure input type]} (parser/parse-stacktrace "")]
+      (is (= :incorrect error))
+      (is (= :incorrect-input type))
+      (is (= "" input))
+      (is (= {:index 0
+              :reason
+              [{:tag :regexp :expecting "[a-zA-Z0-9_$/-]"}
+               {:tag :regexp :expecting "[^\\S\\r\\n]+"}]
+              :line 1
+              :column 1
+              :text nil}
+             (test/stringify-regexp failure))))))
+
+(deftest parse-stacktrace-unsupported-input-test
+  (testing "parsing unsupported input"
+    (let [{:keys [error input type]} (parser/parse-stacktrace 1)]
+      (is (= :unsupported error))
+      (is (= :unsupported-input type))
+      (is (= 1 input)))))

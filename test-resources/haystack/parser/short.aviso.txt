@@ -1,0 +1,3 @@
+java.lang.Thread.run  Thread.java: 829
+clojure.lang.ExceptionInfo: BOOM-1
+    boom: "1"

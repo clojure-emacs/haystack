@@ -1,0 +1,53 @@
+(ns haystack.stacktrace.parser-test
+  (:require
+   [clojure.string :as str]
+   [clojure.test :refer [deftest is testing]]
+   [haystack.stacktrace.parser :as parser]
+   [haystack.stacktrace.parser.test :as test]))
+
+(deftest parse-test
+  (doseq [fixture test/fixtures]
+    (testing (format "parse fixture %s" fixture)
+      (let [{:keys [cause error trace]} (parser/parse (test/read-fixture fixture))]
+        (testing "should succeed"
+          (is (nil? error)))
+        (testing "should parse the cause"
+          (is (string? cause)))
+        (testing "should parse the trace"
+          (doseq [element trace]
+            (is (test/stacktrace-element? element) element)))))))
+
+(deftest parse-garbage-test
+  (doseq [fixture test/fixtures]
+    (testing (format "parse fixture %s with" fixture)
+      (let [text (test/read-fixture fixture)
+            expected (parser/parse text)]
+        (testing "garbage at the beginning"
+          (is (= expected (parser/parse (str "\n<garbage>\n<garbage>\n" text)))))
+        (testing "garbage at the end"
+          (is (= expected (parser/parse (str text "\n<garbage>\n<garbage>\n")))))
+        (testing "white space in front"
+          (is (= expected (parser/parse (str " \t " text)))))
+        (testing "white space at the end"
+          (is (= expected (parser/parse (str text " \t ")))))
+        (testing "newlines in front"
+          (is (= expected (parser/parse (str text "\n\n")))))
+        (testing "newlines at the end"
+          (is (= expected (parser/parse (str text "\n\n")))))))))
+
+(deftest parse-trim-test
+  (doseq [fixture test/fixtures]
+    (testing (format "parse fixture %s with" fixture)
+      (let [text (test/read-fixture fixture)]
+        (testing "trimmed input"
+          (is (= (parser/parse text)
+                 (parser/parse (str/trim text)))))))))
+
+(deftest parse-input-transformation-test
+  (doseq [fixture test/fixtures]
+    (testing (format "parse fixture %s" fixture)
+      (let [text (test/read-fixture fixture)]
+        (testing "with input pr-str 1 level deep"
+          (is (= (parser/parse text) (parser/parse (pr-str text)))))
+        (testing "with input pr-str 2 levels deep"
+          (is (= (parser/parse text) (parser/parse (pr-str (pr-str text))))))))))
