@@ -57,5 +57,5 @@
          (if (= 'error tag)
            (assoc (transform form) :stacktrace-type :clojure.tagged-literal)
            (util/error-incorrect-input input)))
-       (catch Exception e
+       (catch #?(:clj Exception :cljs js/Error) e
          (util/error-unsupported-input input e))))

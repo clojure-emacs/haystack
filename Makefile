@@ -8,6 +8,9 @@ clean:
 test: clean
 	lein with-profile -user,-dev,+$(VERSION) test
 
+test-cljs:
+	lein with-profile -user,-dev,+$(VERSION) doo node test once
+
 cljfmt:
 	lein with-profile -user,+$(VERSION),+cljfmt cljfmt check
 

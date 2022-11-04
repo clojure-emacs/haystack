@@ -16,7 +16,19 @@
                                     :username :env/clojars_username
                                     :password :env/clojars_password
                                     :sign-releases false}]]
-  :profiles {:provided {:dependencies [[org.clojure/clojure "1.11.1"]]}
+  :plugins [[lein-cljsbuild "1.1.8"]
+            [lein-difftest "2.0.0"]
+            [lein-doo "0.1.11"]]
+  :cljsbuild {:builds
+              [{:id "test"
+                :compiler
+                {:main haystack.test.runner
+                 :output-dir "target/cljs/test"
+                 :output-to "target/cljs/test.js"
+                 :target :nodejs}
+                :source-paths ["src" "test"]}]}
+  :profiles {:provided {:dependencies [[org.clojure/clojure "1.11.1"]
+                                       [org.clojure/clojurescript "1.11.4"]]}
 
              :1.8 {:dependencies [[org.clojure/clojure "1.8.0"]]}
 
