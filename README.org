@@ -9,18 +9,17 @@
 ** Introduction
 
 Stacktraces are a hot topic in the Clojure community. As a Clojurist
-you deal with them in different kinds of situations. Sometimes you
-catch them "live", like an exception just thrown in a REPL. Other
-times you find them as text, printed in a REPL, or in a log file. Or
-worst, a printed exception buried inside another string, almost
-impossible to read. And of course, there are different kinds of
-formats.
+you deal with them in different situations. Sometimes you catch them
+"live", like an exception just thrown in a REPL. Other times you find
+them as text, printed in a REPL, or in a log file. Or worst, a printed
+exception buried inside another string, almost impossible to read. And
+of course, there are different kinds of formats.
 
-Tooling helps, and Haystack provides functionality to parse and
-analyze stacktraces to such tools. Haystack comes with parsers for
-some of the commonly used formats in which stacktraces are printed,
-and an analyzer that enriches a stacktrace with additional
-information.
+Haystack is a library that can parse and analyze Clojure
+stacktraces. The parser transforms printed stacktraces back into data
+and the analyzer enriches stacktrace data with run-time information
+from the class path. It is used in [[https://docs.cider.mx][Cider]] to power the [[https://docs.cider.mx/cider/usage/navigating_stacktraces.html][stacktrace
+navigator]].
 
 ** Parser
 
