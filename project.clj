@@ -19,6 +19,7 @@
   :plugins [[lein-cljsbuild "1.1.8"]
             [lein-difftest "2.0.0"]
             [lein-doo "0.1.11"]]
+  :aliases {"test-cljs" ["doo" "node" "test" "once"]}
   :cljsbuild {:builds
               [{:id "test"
                 :compiler
