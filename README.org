@@ -197,9 +197,9 @@ git push --tags
 *** Creating a parser
 
 To add support for another stacktrace format, please create a new
-parser under the =haystack.parser= namespace and add it to
-the =haystack.parser/default-parsers= var. The parser should
-be a function that accepts a single argument, the input (typically a
+parser under the =haystack.parser.<NEW-FORMAT>= namespace and add it
+to the =haystack.parser/default-parsers= var. The parser should be a
+function that accepts a single argument, the input (typically a
 string), and returns a map. The parser function should follow the
 following rules:
 
