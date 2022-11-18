@@ -23,16 +23,16 @@ navigator]].
 
 ** Parser
 
-The Haystack stacktrace parser can read stacktraces in various
-formats. Given an input, the parser applies some transformations to it
-(unwrapping an EDN string for example) and passes the result to the
-parser functions registered in the
-=haystack.parser/default-parsers= var. Each of the
-registered parsers is tried in order and the first parser that
-succeeds wins.
+The Haystack stacktrace parser transforms a string that contains a
+stacktrace printed in one of the supported formats back into a Clojure
+data structure. Given an input, the parser applies some
+transformations to it (unwrapping an EDN string for example) and
+passes the result to the parser functions registered in the
+=haystack.parser/default-parsers= var. Each of the registered parsers
+is tried in order and the first parser that succeeds wins.
 
-On success a parser returns a Clojure map with a similar structure as
-=Throwable->map=.
+On success the parser returns a Clojure map with a similar structure
+as Clojure's =Throwable->map= function.
 
 On failure the parser returns a map with an =:error= key, and possibly
 other keys describing the error.
@@ -58,17 +58,18 @@ representation of a Throwable, a map with the following keys:
 
 This is mostly the same format as used by =Throwable->map= in newer
 Clojure versions, except for the additional =:trace= key in the cause
-maps of =:via=.
+maps of =:via=. We added this additional key to keep the trace of the
+causes.
 
 *** Supported formats
 
-Stacktraces come in different formats. Haystack supports the following
-flavors:
+Stacktraces are printed in different formats by tools and
+libraries. Haystack supports the following formats:
 
 - =:aviso= Stacktraces printed with the [[https://ioavisopretty.readthedocs.io/en/latest/exceptions.html][write-exception]] function of
   the [[https://github.com/AvisoNovate/pretty][Aviso]] library.
 
-- =:clojure.tagged-literal= Stacktraces printed as a tagged literal,
+- =:clojure.tagged-literal= Stacktraces printed as a [[https://clojure.org/reference/reader#tagged_literals][tagged literal]],
   like a [[https://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html][java.lang.Throwable]] printed with the [[https://clojure.github.io/clojure/branch-master/clojure.core-api.html#clojure.core/pr][pr]] function.
 
 - =:clojure.stacktrace= Stacktraces printed with the [[https://clojure.github.io/clojure/branch-master/clojure.stacktrace-api.html#clojure.stacktrace/print-cause-trace][print-cause-trace]]
@@ -77,8 +78,8 @@ flavors:
 - =:clojure.repl= Stacktraces printed with the [[https://clojure.github.io/clojure/branch-master/clojure.repl-api.html#clojure.repl/pst][pst]] function of the
   [[https://clojure.github.io/clojure/branch-master/clojure.repl-api.html][clojure.repl]] namespace.
 
-- =:java= Stacktraces printed with the [[https://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html#printStackTrace--][printStackTrace]] method of
-  [[https://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html][java.lang.Throwable]].
+- =:java= Stacktraces printed with the [[https://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html#printStackTrace--][printStackTrace]] method of the
+  [[https://docs.oracle.com/javase/8/docs/api/java/lang/Throwable.html][java.lang.Throwable]] class.
 
 *** Usage
 
