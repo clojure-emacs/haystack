@@ -4,7 +4,7 @@
             [haystack.parser.test :as test]
             [haystack.parser.test.fixtures :refer [fixtures]]))
 
-(defn- parse [s ]
+(defn- parse [s]
   (parser/parse-stacktrace s))
 
 (deftest parse-throwable-test
