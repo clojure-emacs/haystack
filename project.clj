@@ -16,9 +16,7 @@
                                     :username :env/clojars_username
                                     :password :env/clojars_password
                                     :sign-releases false}]]
-  :plugins [[lein-cljsbuild "1.1.8"]
-            [lein-doo "0.1.11" :exclusions [org.clojure/clojurescript]]]
-  :aliases {"test-cljs" ["doo" "node" "test" "once"]}
+  :plugins [[lein-cljsbuild "1.1.8"]]
   :cljsbuild {:builds
               [{:id "test"
                 :compiler
