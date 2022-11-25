@@ -35,8 +35,9 @@
 ;; ## Test fixtures
 
 (def form1 '(throw (ex-info "oops" {:x 1} (ex-info "cause" {:y 2}))))
-(def form2 '(do (defn oops [] (+ 1 "2"))
-                (oops)))
+(def form2 '(let [^long num "2"] ;; Type hint to make eastwood happy
+              (defn oops [] (+ 1 num))
+              (oops)))
 (def form3 '(not-defined))
 (def form4 '(divi 1 0))
 
@@ -152,9 +153,9 @@
             dup? #(or (= (:name %1) (:name %2))
                       (and (= (:file %1) (:file %2))
                            (= (:line %1) (:line %2))))]
-        (is (every? (fn [[i v]] (dup? v (get ixd1 (dec i))))
+        (is (every? (fn [[i v]] (dup? v (get ixd1 (dec ^long i))))
                     (filter (comp :dup :flags val) ixd1)))
-        (is (every? (fn [[i v]] (dup? v (get ixd2 (dec i))))
+        (is (every? (fn [[i v]] (dup? v (get ixd2 (dec ^long i))))
                     (filter (comp :dup :flags val) ixd2)))))))
 
 (deftest exception-causes-test
