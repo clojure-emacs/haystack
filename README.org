@@ -1,9 +1,9 @@
 [[https://circleci.com/gh/clojure-emacs/haystack/tree/master][https://circleci.com/gh/clojure-emacs/haystack/tree/master.svg?style=svg]]
-[[https://clojars.org/cider/haystack][https://img.shields.io/clojars/v/cider/haystack.svg]]
+[[https://clojars.org/cider/haystack][https://img.shields.io/clojars/v/mx.cider/haystack.svg]]
 [[https://versions.deps.co/clojure-emacs/haystack][https://versions.deps.co/clojure-emacs/haystack/status.svg]]
 [[https://codecov.io/gh/clojure-emacs/haystack/][https://codecov.io/gh/clojure-emacs/haystack/branch/master/graph/badge.svg]]
-[[https://cljdoc.org/d/cider/haystack/CURRENT][https://cljdoc.org/badge/cider/haystack]]
-[[https://clojars.org/cider/haystack][https://versions.deps.co/cider/haystack/downloads.svg]]
+[[https://cljdoc.org/d/cider/haystack/CURRENT][https://cljdoc.org/badge/mx.cider/haystack]]
+[[https://clojars.org/cider/haystack][https://versions.deps.co/mx.cider/haystack/downloads.svg]]
 
 * Haystack
 ** Introduction
