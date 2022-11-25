@@ -27,7 +27,7 @@ kondo:
 
 # Deployment is performed via CI by creating a git tag prefixed with "v".
 # Please do not deploy locally as it skips various measures.
-deploy: check-env .inline-deps
+deploy: check-env
 	lein with-profile -user,-dev,+$(VERSION) deploy clojars
 
 # Usage: PROJECT_VERSION=3.2.1 make install
