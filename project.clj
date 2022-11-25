@@ -7,7 +7,7 @@
   :license {:name "Eclipse Public License"
             :url "https://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[cider/orchard "0.11.0"]
-                 [instaparse "1.4.12"]]
+                 [instaparse "1.4.12" :exclusions [org.clojure/clojure]]]
   :pedantic? ~(if (System/getenv "CI")
                 :abort
                 ;; :pedantic? can be problematic for certain local dev workflows:
@@ -51,7 +51,9 @@
                                    :exclude-namespaces [refactor-nrepl.plugin]
                                    :add-linters [:boxed-math :performance]}}
              :clj-kondo [:test
-                         {:dependencies [[clj-kondo "2022.10.14"]]}]
+                         {:dependencies [[clj-kondo "2022.10.14"
+                                          :exclusions [com.cognitect/transit-clj
+                                                       org.clojure/tools.reader]]]}]
 
              :deploy {:source-paths [".circleci/deploy"]}
              :repl {:resource-paths ["test-resources"]}
