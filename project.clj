@@ -51,7 +51,7 @@
                                    ;; because :implicit-dependencies can only work for a certain corner case starting from 1.10.
                                    :exclude-linters [:implicit-dependencies]
                                    :exclude-namespaces [refactor-nrepl.plugin]
-                                   :add-linters [:performance]
+                                   :add-linters [:boxed-math :performance]
                                    :config-files ["eastwood.clj"]}}
              :clj-kondo [:test
                          {:dependencies [[clj-kondo "2022.10.14"]]}]
