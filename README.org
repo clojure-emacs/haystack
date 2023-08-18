@@ -266,6 +266,6 @@ and was originally part of the [[https://github.com/clojure-emacs/cider-nrepl][c
 
 ** License
 
-Copyright © 2022 Cider Contributors
+Copyright © 2022-23 Cider Contributors
 
 Distributed under the Eclipse Public License, the same as Clojure.
