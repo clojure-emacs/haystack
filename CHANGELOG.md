@@ -5,6 +5,19 @@
 ## Changes
 
 * `analyzer`: include a `:phase` key for the causes that include a `:clojure.error/phase`.
+* Categorize more frames as `:tooling`
+  * `:tooling` now intends to more broadly hide things that are commonly Clojure-internal / irrelevant to the application programmer.
+  * New exhaustive list:
+    * `cider.*`
+    * `clojure.core/apply`
+    * `clojure.core/binding-conveyor-fn`
+    * `clojure.core/eval`
+    * `clojure.core/with-bindings`
+    * `clojure.lang.Compiler`
+    * `clojure.lang.RT`
+    * `clojure.main/repl`
+    * `nrepl.*`
+    * `java.lang.Thread/run` (if it's the root element of the stacktrace)
 
 ## 0.1.0
 

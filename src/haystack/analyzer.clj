@@ -120,17 +120,26 @@
     (flag-frame frame :repl)
     frame))
 
+(defn- tool? [frame-name last?]
+  (boolean (or (re-find #"^clojure\.lang\.AFn|^clojure\.lang\.RestFn|^clojure\.lang\.RT|clojure\.lang\.Compiler|^nrepl\.|^cider\.|^clojure\.core/eval|^clojure\.core/apply|^clojure\.core/with-bindings|^clojure\.core/binding-conveyor-fn|^clojure\.main/repl"
+                        frame-name)
+               (and last?
+                    ;; Everything runs from a Thread, so this frame, if at root, is irrelevant.
+                    ;; However one can invoke this method 'by hand', which is why we also observe `last?`.
+                    (re-find #"^java\.lang\.Thread/run" frame-name)))))
+
 (defn- flag-tooling
   "Walk the call stack from top to bottom, flagging frames below the first call
   to `clojure.lang.Compiler` or `nrepl.*` as `:tooling` to
   distinguish compilation and nREPL middleware frames from user code."
   [frames]
-  (let [tool-regex #"^clojure\.lang\.Compiler|^nrepl\.|^cider\."
-        tool? #(re-find tool-regex (or (:name %) ""))
-        flag  #(if (tool? %)
-                 (flag-frame % :tooling)
-                 %)]
-    (map flag frames)))
+  (let [last-index (dec (count frames))]
+    (into []
+          (map-indexed (fn [i {frame-name :name :as frame}]
+                         (cond-> frame
+                           (some-> frame-name (tool? (= i last-index)))
+                           (flag-frame :tooling))))
+          frames)))
 
 (defn directory-namespaces
   "Looks for all namespaces inside of directories on the class

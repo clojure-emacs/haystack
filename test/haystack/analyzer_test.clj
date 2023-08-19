@@ -341,7 +341,7 @@
                     :class "clojure.lang.AFn"
                     :method "applyToHelper"
                     :type :java
-                    :flags #{:java}}
+                    :flags #{:java :tooling}}
                    (dissoc (first stacktrace) :file-url))))
           (testing "last frame"
             (is (= {:name "java.lang.Thread/run"
@@ -350,7 +350,7 @@
                     :class "java.lang.Thread"
                     :method "run"
                     :type :java
-                    :flags #{:java}}
+                    :flags #{:java :tooling}}
                    (dissoc (last stacktrace) :file-url)))))))
     (testing "second cause"
       (let [{:keys [class data message stacktrace]} (second causes)]
@@ -369,7 +369,7 @@
                     :class "clojure.lang.AFn"
                     :method "applyToHelper"
                     :type :java
-                    :flags #{:java}}
+                    :flags #{:java :tooling}}
                    (dissoc (first stacktrace) :file-url)))))))
     (testing "third cause"
       (let [{:keys [class data message stacktrace]} (nth causes 2)]
@@ -388,7 +388,7 @@
                     :class "clojure.lang.AFn"
                     :method "applyToHelper"
                     :type :java
-                    :flags #{:java}}
+                    :flags #{:java :tooling}}
                    (dissoc (first stacktrace) :file-url)))))))))
 
 (deftest test-analyze-short-clojure-tagged-literal-println
@@ -411,7 +411,7 @@
                     :class "java.lang.Thread"
                     :method "run"
                     :type :java
-                    :flags #{:java}}
+                    :flags #{:java :tooling}}
                    (dissoc (first stacktrace) :file-url)))))))))
 
 (deftest test-analyze-java
@@ -434,7 +434,7 @@
                     :class "clojure.lang.AFn"
                     :method "applyToHelper"
                     :type :java
-                    :flags #{:java}}
+                    :flags #{:java :tooling}}
                    (dissoc (first stacktrace) :file-url))))
           (testing "last frame"
             (is (= {:name "java.lang.Thread/run"
@@ -443,7 +443,7 @@
                     :class "java.lang.Thread"
                     :method "run"
                     :type :java
-                    :flags #{:java}}
+                    :flags #{:java :tooling}}
                    (dissoc (last stacktrace) :file-url)))))))
     (testing "second cause"
       (let [{:keys [class data message stacktrace]} (second causes)]
@@ -462,7 +462,7 @@
                     :class "clojure.lang.AFn"
                     :method "applyToHelper"
                     :type :java
-                    :flags #{:java}}
+                    :flags #{:java :tooling}}
                    (dissoc (first stacktrace) :file-url))))
           (testing "last frame"
             (is (= {:name "clojure.lang.Compiler$InvokeExpr/eval"
@@ -490,7 +490,7 @@
                     :class "clojure.lang.AFn"
                     :method "applyToHelper"
                     :type :java
-                    :flags #{:java}}
+                    :flags #{:java :tooling}}
                    (dissoc (first stacktrace) :file-url))))
           (testing "last frame"
             (is (= {:name "clojure.lang.Compiler$InvokeExpr/eval"
@@ -544,12 +544,12 @@
                     :class "clojure.lang.AFn"
                     :method "applyToHelper"
                     :type :java
-                    :flags #{:java}}
+                    :flags #{:java :tooling}}
                    (dissoc (nth stacktrace 0) :file-url))))
           (testing "2nd frame"
             (is (= {:class "clojure.lang.AFn"
                     :file "AFn.java"
-                    :flags #{:java}
+                    :flags #{:java :tooling}
                     :line 144
                     :method "applyTo"
                     :name "clojure.lang.AFn/applyTo"
@@ -572,7 +572,7 @@
                     :line 160
                     :method "applyToHelper"
                     :type :java
-                    :flags #{:java}}
+                    :flags #{:java :tooling}}
                    (dissoc (nth stacktrace 0) :file-url)))))))
     (testing "third cause"
       (let [{:keys [class data message stacktrace]} (nth causes 2 nil)]
@@ -591,7 +591,7 @@
                     :line 156
                     :method "applyToHelper"
                     :type :java
-                    :flags #{:java}}
+                    :flags #{:java :tooling}}
                    (dissoc (nth stacktrace 0) :file-url))))))))
 
   (let [{:keys [major minor]} *clojure-version*]
@@ -604,3 +604,47 @@
                       (catch Throwable e
                         (sut/analyze e)))
                     (map :phase))))))))
+
+(deftest tool?
+  (are [frame-name expected] (testing frame-name
+                               (is (= expected
+                                      (#'sut/tool? frame-name false)))
+                               true)
+    "cider.foo"                           true
+    "acider.foo"                          false
+    ;; `+` is "application" level, should not be hidden:
+    "clojure.core/+"                      false
+    ;; `apply` typically is internal, should be hidden:
+    "clojure.core/apply"                  true
+    "clojure.core/binding-conveyor-fn/fn" true
+    "clojure.core/eval"                   true
+    "clojure.core/with-bindings*"         true
+    "clojure.lang.AFn/applyTo"            true
+    "clojure.lang.AFn/applyToHelper"      true
+    "clojure.lang.RestFn/invoke"          true
+    "clojure.main/repl"                   true
+    "nrepl.foo"                           true
+    "anrepl.foo"                          false
+    ;; important case - `Numbers` is relevant, should not be hidden:
+    "clojure.lang.Numbers/divide"         false)
+
+  (is (not (#'sut/tool? "java.lang.Thread/run" false)))
+  (is (#'sut/tool? "java.lang.Thread/run" true)))
+
+(deftest flag-tooling
+  (is (= [{:name "cider.foo", :flags #{:tooling}}
+          {:name "java.lang.Thread/run"} ;; does not get the flag because it's not the root frame
+          {:name "don't touch me 1"}
+          {:name "nrepl.foo", :flags #{:tooling}}
+          {:name "clojure.lang.RestFn/invoke", :flags #{:tooling}}
+          {:name "don't touch me 2"}
+          ;; gets the flag because it's not the root frame:
+          {:name "java.lang.Thread/run", :flags #{:tooling}}]
+         (#'sut/flag-tooling [{:name "cider.foo"}
+                              {:name "java.lang.Thread/run"}
+                              {:name "don't touch me 1"}
+                              {:name "nrepl.foo"}
+                              {:name "clojure.lang.RestFn/invoke"}
+                              {:name "don't touch me 2"}
+                              {:name "java.lang.Thread/run"}]))
+      "Adds the flag when appropiate, leaving other entries untouched"))
