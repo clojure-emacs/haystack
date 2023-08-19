@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## Changes
+
+* `analyzer`: include a `:phase` key for the causes that include a `:clojure.error/phase`.
+
 ## 0.1.0
 
 ### Bugs fixed

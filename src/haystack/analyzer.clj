@@ -332,6 +332,7 @@
                       (print-fn % writer)
                       (str writer))
         m {:class (name (:type cause-data))
+           :phase (-> cause-data :data :clojure.error/phase)
            :message (:message cause-data)
            :stacktrace (analyze-stacktrace-data
                         (cond (seq (:trace cause-data))
