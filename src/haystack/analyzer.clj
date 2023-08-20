@@ -132,9 +132,10 @@
                       (re-find #"^java\.lang\.Thread/run" demunged))))))
 
 (defn- flag-tooling
-  "Walk the call stack from top to bottom, flagging frames below the first call
-  to `clojure.lang.Compiler` or `nrepl.*` as `:tooling` to
-  distinguish compilation and nREPL middleware frames from user code."
+  "Given a collection of stack `frames`, marks the 'tooling' ones as such.
+
+  A 'tooling' frame is one that generally represents Clojure, JVM, nREPL or CIDER internals,
+  and that is therefore not relevant to application-level code."
   [frames]
   (let [last-index (dec (count frames))]
     (into []
