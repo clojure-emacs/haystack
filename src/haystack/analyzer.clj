@@ -54,7 +54,7 @@
   (or (info/file-path path) (second (resource/resource-path-tuple path))))
 
 (defn- frame->url
-  "Return a java.net.URL to the file referenced in the frame, if possible.
+  "Return a `java.net.URL` to the file referenced in the frame, if possible.
   Useful for handling clojure vars which may not exist. Uncomprehensive list of
   reasons for this:
   * Failed refresh
@@ -336,7 +336,7 @@
           (flag-tooling)))))
 
 (defn- analyze-cause
-  "Analyze the `cause-data` of an exception in `Throwable->map` format."
+  "Analyze the `cause-data` of an exception, in `Throwable->map` format."
   [cause-data print-fn]
   (let [pprint-str #(let [writer (StringWriter.)]
                       (print-fn % writer)
@@ -378,8 +378,8 @@
   "Return the analyzed cause chain for `exception` beginning with the
   thrown exception. `exception` can be an instance of `Throwable` or a
   map in the same format as `Throwable->map`. For `ex-info`
-  exceptions, the response contains a :data slot with the pretty
-  printed data. For clojure.spec asserts, the :spec slot contains a
+  exceptions, the response contains a `:data` slot with the pretty
+  printed data. For clojure.spec asserts, the `:spec` slot contains a
   map of pretty printed components describing spec failures."
   {:added "0.1.0"}
   ([exception]
