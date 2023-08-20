@@ -121,12 +121,13 @@
     frame))
 
 (defn- tool? [frame-name last?]
-  (boolean (or (re-find #"^clojure\.lang\.AFn|^clojure\.lang\.RestFn|^clojure\.lang\.RT|clojure\.lang\.Compiler|^nrepl\.|^cider\.|^clojure\.core/eval|^clojure\.core/apply|^clojure\.core/with-bindings|^clojure\.core/binding-conveyor-fn|^clojure\.main/repl"
-                        frame-name)
-               (and last?
-                    ;; Everything runs from a Thread, so this frame, if at root, is irrelevant.
-                    ;; However one can invoke this method 'by hand', which is why we also observe `last?`.
-                    (re-find #"^java\.lang\.Thread/run" frame-name)))))
+  (let [demunged (repl/demunge frame-name)]
+    (boolean (or (re-find #"^clojure\.lang\.AFn|^clojure\.lang\.RestFn|^clojure\.lang\.RT|clojure\.lang\.Compiler|^nrepl\.|^cider\.|^clojure\.core/eval|^clojure\.core/apply|^clojure\.core/with-bindings|^clojure\.core/binding-conveyor-fn|^clojure\.main/repl"
+                          demunged)
+                 (and last?
+                      ;; Everything runs from a Thread, so this frame, if at root, is irrelevant.
+                      ;; However one can invoke this method 'by hand', which is why we also observe `last?`.
+                      (re-find #"^java\.lang\.Thread/run" demunged))))))
 
 (defn- flag-tooling
   "Walk the call stack from top to bottom, flagging frames below the first call

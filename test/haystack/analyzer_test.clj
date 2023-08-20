@@ -610,23 +610,25 @@
                                (is (= expected
                                       (#'sut/tool? frame-name false)))
                                true)
-    "cider.foo"                           true
-    "acider.foo"                          false
+    "cider.foo"                                                 true
+    "acider.foo"                                                false
     ;; `+` is "application" level, should not be hidden:
-    "clojure.core/+"                      false
+    "clojure.core/+"                                            false
     ;; `apply` typically is internal, should be hidden:
-    "clojure.core/apply"                  true
-    "clojure.core/binding-conveyor-fn/fn" true
-    "clojure.core/eval"                   true
-    "clojure.core/with-bindings*"         true
-    "clojure.lang.AFn/applyTo"            true
-    "clojure.lang.AFn/applyToHelper"      true
-    "clojure.lang.RestFn/invoke"          true
-    "clojure.main/repl"                   true
-    "nrepl.foo"                           true
-    "anrepl.foo"                          false
+    "clojure.core/apply"                                        true
+    "clojure.core/binding-conveyor-fn/fn"                       true
+    "clojure.core/eval"                                         true
+    "clojure.core/with-bindings*"                               true
+    "clojure.lang.AFn/applyTo"                                  true
+    "clojure.lang.AFn/applyToHelper"                            true
+    "clojure.lang.RestFn/invoke"                                true
+    "clojure.main/repl"                                         true
+    "clojure.main$repl$read_eval_print__9234$fn__9235/invoke"   true
+    "nrepl.foo"                                                 true
+    "nrepl.middleware.interruptible_eval$evaluate/invokeStatic" true
+    "anrepl.foo"                                                false
     ;; important case - `Numbers` is relevant, should not be hidden:
-    "clojure.lang.Numbers/divide"         false)
+    "clojure.lang.Numbers/divide"                               false)
 
   (is (not (#'sut/tool? "java.lang.Thread/run" false)))
   (is (#'sut/tool? "java.lang.Thread/run" true)))
