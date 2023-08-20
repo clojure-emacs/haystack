@@ -120,10 +120,12 @@
     (flag-frame frame :repl)
     frame))
 
-(defn- tool? [frame-name last?]
+(def ^:private tooling-frame-re
+  #"^clojure\.lang\.AFn|^clojure\.lang\.RestFn|^clojure\.lang\.RT|clojure\.lang\.Compiler|^nrepl\.|^cider\.|^clojure\.core/eval|^clojure\.core/apply|^clojure\.core/with-bindings|^clojure\.core/binding-conveyor-fn|^clojure\.main/repl")
+
+(defn- tooling-frame-name? [frame-name last?]
   (let [demunged (repl/demunge frame-name)]
-    (boolean (or (re-find #"^clojure\.lang\.AFn|^clojure\.lang\.RestFn|^clojure\.lang\.RT|clojure\.lang\.Compiler|^nrepl\.|^cider\.|^clojure\.core/eval|^clojure\.core/apply|^clojure\.core/with-bindings|^clojure\.core/binding-conveyor-fn|^clojure\.main/repl"
-                          demunged)
+    (boolean (or (re-find tooling-frame-re demunged)
                  (and last?
                       ;; Everything runs from a Thread, so this frame, if at root, is irrelevant.
                       ;; However one can invoke this method 'by hand', which is why we also observe `last?`.
@@ -138,7 +140,7 @@
     (into []
           (map-indexed (fn [i {frame-name :name :as frame}]
                          (cond-> frame
-                           (some-> frame-name (tool? (= i last-index)))
+                           (some-> frame-name (tooling-frame-name? (= i last-index)))
                            (flag-frame :tooling))))
           frames)))
 

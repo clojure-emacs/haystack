@@ -605,10 +605,10 @@
                         (sut/analyze e)))
                     (map :phase))))))))
 
-(deftest tool?
+(deftest tooling-frame-name?
   (are [frame-name expected] (testing frame-name
                                (is (= expected
-                                      (#'sut/tool? frame-name false)))
+                                      (#'sut/tooling-frame-name? frame-name false)))
                                true)
     "cider.foo"                                                 true
     "acider.foo"                                                false
@@ -630,8 +630,8 @@
     ;; important case - `Numbers` is relevant, should not be hidden:
     "clojure.lang.Numbers/divide"                               false)
 
-  (is (not (#'sut/tool? "java.lang.Thread/run" false)))
-  (is (#'sut/tool? "java.lang.Thread/run" true)))
+  (is (not (#'sut/tooling-frame-name? "java.lang.Thread/run" false)))
+  (is (#'sut/tooling-frame-name? "java.lang.Thread/run" true)))
 
 (deftest flag-tooling
   (is (= [{:name "cider.foo", :flags #{:tooling}}
