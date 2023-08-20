@@ -16,7 +16,7 @@ defaults: &defaults
 executors:
   openjdk8:
     docker:
-      - image: circleci/clojure:openjdk-8-lein-2.9.5
+      - image: circleci/clojure:openjdk-8-lein-2.9.1-node
     environment:
       LEIN_ROOT: "true"   # we intended to run lein as root
       JVM_OPTS: -Xmx3200m # limit the maximum heap size to prevent out of memory errors
@@ -32,7 +32,7 @@ executors:
 
   openjdk11:
     docker:
-      - image: circleci/clojure:openjdk-11-lein-2.9.5
+      - image: circleci/clojure:openjdk-11-lein-2.9.3-buster-node
     environment:
       LEIN_ROOT: "true"   # we intended to run lein as root
       JVM_OPTS: -Xmx3200m --illegal-access=deny # forbid reflective access (this flag doesn't exist for JDK8 or JDK17+)
@@ -40,7 +40,7 @@ executors:
 
   openjdk17:
     docker:
-      - image: circleci/clojure:openjdk-17-lein-2.9.5-buster
+      - image: circleci/clojure:openjdk-17-lein-2.9.5-buster-node
     environment:
       LEIN_ROOT: "true"   # we intended to run lein as root
       JVM_OPTS: -Xmx3200m
@@ -153,8 +153,11 @@ jobs:
           cache_version: << parameters.clojure_version >>|<< parameters.jdk_version >>
           steps:
             - run:
-                name: Running tests
+                name: Running JVM tests
                 command: make test
+            - run:
+                name: Running cljs tests
+                command: make test-cljs
 
 ######################################################################
 #

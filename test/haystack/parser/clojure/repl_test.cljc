@@ -113,7 +113,7 @@
               :reason
               #?(:clj [{:tag :regexp :expecting "[a-zA-Z0-9_$/-]"}
                        {:tag :regexp :expecting "[^\\S\\r\\n]+"}]
-                 :cljs [{:tag :regexp, :expecting "/^[a-zA-Z0-9_$\\/-]/"}
+                 :cljs [{:tag :regexp, :expecting "/^[a-zA-Z0-9_$/-]/"}
                         {:tag :regexp, :expecting "/^[^\\S\\r\\n]+/"}])
               :line 1
               :column 1

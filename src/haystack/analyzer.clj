@@ -54,7 +54,7 @@
   (or (info/file-path path) (second (resource/resource-path-tuple path))))
 
 (defn- frame->url
-  "Return a java.net.URL to the file referenced in the frame, if possible.
+  "Return a `java.net.URL` to the file referenced in the frame, if possible.
   Useful for handling clojure vars which may not exist. Uncomprehensive list of
   reasons for this:
   * Failed refresh
@@ -120,17 +120,30 @@
     (flag-frame frame :repl)
     frame))
 
+(def ^:private tooling-frame-re
+  #"^clojure\.lang\.AFn|^clojure\.lang\.RestFn|^clojure\.lang\.RT|clojure\.lang\.Compiler|^nrepl\.|^cider\.|^clojure\.core/eval|^clojure\.core/apply|^clojure\.core/with-bindings|^clojure\.core/binding-conveyor-fn|^clojure\.main/repl")
+
+(defn- tooling-frame-name? [frame-name last?]
+  (let [demunged (repl/demunge frame-name)]
+    (boolean (or (re-find tooling-frame-re demunged)
+                 (and last?
+                      ;; Everything runs from a Thread, so this frame, if at root, is irrelevant.
+                      ;; However one can invoke this method 'by hand', which is why we also observe `last?`.
+                      (re-find #"^java\.lang\.Thread/run" demunged))))))
+
 (defn- flag-tooling
-  "Walk the call stack from top to bottom, flagging frames below the first call
-  to `clojure.lang.Compiler` or `nrepl.*` as `:tooling` to
-  distinguish compilation and nREPL middleware frames from user code."
+  "Given a collection of stack `frames`, marks the 'tooling' ones as such.
+
+  A 'tooling' frame is one that generally represents Clojure, JVM, nREPL or CIDER internals,
+  and that is therefore not relevant to application-level code."
   [frames]
-  (let [tool-regex #"^clojure\.lang\.Compiler|^nrepl\.|^cider\."
-        tool? #(re-find tool-regex (or (:name %) ""))
-        flag  #(if (tool? %)
-                 (flag-frame % :tooling)
-                 %)]
-    (map flag frames)))
+  (let [last-index (dec (count frames))]
+    (into []
+          (map-indexed (fn [i {frame-name :name :as frame}]
+                         (cond-> frame
+                           (some-> frame-name (tooling-frame-name? (= i last-index)))
+                           (flag-frame :tooling))))
+          frames)))
 
 (defn directory-namespaces
   "Looks for all namespaces inside of directories on the class
@@ -326,7 +339,7 @@
           (flag-tooling)))))
 
 (defn- analyze-cause
-  "Analyze the `cause-data` of an exception in `Throwable->map` format."
+  "Analyze the `cause-data` of an exception, in `Throwable->map` format."
   [cause-data print-fn]
   (let [pprint-str #(let [writer (StringWriter.)]
                       (print-fn % writer)
@@ -368,8 +381,8 @@
   "Return the analyzed cause chain for `exception` beginning with the
   thrown exception. `exception` can be an instance of `Throwable` or a
   map in the same format as `Throwable->map`. For `ex-info`
-  exceptions, the response contains a :data slot with the pretty
-  printed data. For clojure.spec asserts, the :spec slot contains a
+  exceptions, the response contains a `:data` slot with the pretty
+  printed data. For clojure.spec asserts, the `:spec` slot contains a
   map of pretty printed components describing spec failures."
   {:added "0.1.0"}
   ([exception]
