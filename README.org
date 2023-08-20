@@ -186,14 +186,6 @@ We get back a sequence of maps, one for each cause, which contain
 additional information about each frame discovered from the class path.
 
 ** Development
-*** Deployment
-
-Here's how to deploy to Clojars:
-
-#+begin_src sh
-git tag -a v0.1.0 -m "0.1.0"
-git push --tags
-#+end_src
 
 *** Creating a parser
 
@@ -254,6 +246,15 @@ for writing Instaparse grammars:
 
 - If your parser fails on an input, [[https://github.com/Engelberg/instaparse#revealing-hidden-information][reveal hidden information]] to get a
   better understanding of what happened.
+
+*** Deployment
+
+Here's how to deploy to Clojars:
+
+#+begin_src sh
+git tag -a v0.1.0 -m "0.1.0"
+git push --tags
+#+end_src
 
 ** Changelog
 

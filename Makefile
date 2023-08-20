@@ -8,8 +8,8 @@ clean:
 test: clean
 	lein with-profile -user,-dev,+$(VERSION) test
 
-test-cljs:
-	lein cljsbuild once
+test-cljs: clean
+	lein with-profile -user,-dev,+cljsbuild cljsbuild once
 	node target/cljs/test.js
 
 cljfmt:
