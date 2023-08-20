@@ -592,4 +592,15 @@
                     :method "applyToHelper"
                     :type :java
                     :flags #{:java}}
-                   (dissoc (nth stacktrace 0) :file-url)))))))))
+                   (dissoc (nth stacktrace 0) :file-url))))))))
+
+  (let [{:keys [major minor]} *clojure-version*]
+    (when-not (and (= 1 major)
+                   (< (long minor) 10))
+      (testing "Includes a `:phase` for the causes that include it"
+        (is (= [:macro-syntax-check nil]
+               (->> (try
+                      (eval '(let [1]))
+                      (catch Throwable e
+                        (sut/analyze e)))
+                    (map :phase))))))))
