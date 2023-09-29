@@ -121,7 +121,7 @@
     frame))
 
 (def ^:private tooling-frame-re
-  #"^clojure\.lang\.AFn|^clojure\.lang\.RestFn|^clojure\.lang\.RT|clojure\.lang\.Compiler|^nrepl\.|^cider\.|^clojure\.core/eval|^clojure\.core/apply|^clojure\.core/with-bindings|^clojure\.core/binding-conveyor-fn|^clojure\.main/repl")
+  #"^clojure\.lang\.LazySeq|^clojure\.lang\.Var|^clojure\.lang\.MultiFn|^clojure\.lang\.AFn|^clojure\.lang\.RestFn|^clojure\.lang\.RT|clojure\.lang\.Compiler|^nrepl\.|^cider\.|^refactor-nrepl\.|^shadow.cljs\.|^clojure\.core/eval|^clojure\.core/apply|^clojure\.core/with-bindings|^clojure\.core\.protocols|^clojure\.core\.map/fn|^clojure\.core/binding-conveyor-fn|^clojure\.main/repl")
 
 (defn- tooling-frame-name? [frame-name last?]
   (let [demunged (repl/demunge frame-name)]
@@ -129,7 +129,7 @@
                  (and last?
                       ;; Everything runs from a Thread, so this frame, if at root, is irrelevant.
                       ;; However one can invoke this method 'by hand', which is why we also observe `last?`.
-                      (re-find #"^java\.lang\.Thread/run" demunged))))))
+                      (re-find #"^java\.lang\.Thread/run|^java\.util\.concurrent" demunged))))))
 
 (defn- flag-tooling
   "Given a collection of stack `frames`, marks the 'tooling' ones as such.
@@ -137,13 +137,22 @@
   A 'tooling' frame is one that generally represents Clojure, JVM, nREPL or CIDER internals,
   and that is therefore not relevant to application-level code."
   [frames]
-  (let [last-index (dec (count frames))]
-    (into []
-          (map-indexed (fn [i {frame-name :name :as frame}]
-                         (cond-> frame
-                           (some-> frame-name (tooling-frame-name? (= i last-index)))
-                           (flag-frame :tooling))))
-          frames)))
+  (let [results (volatile! {})]
+    (->> frames
+         reverse
+         (into []
+               (map-indexed (fn [^long i {frame-name :name :as frame}]
+                              (let [;; A frame is considered the last if it's literally the last one,
+                                    ;; or if the previous element was marked as tooling.
+                                    last? (or (zero? i)
+                                              (some-> @results (get (dec i))))
+                                    tooling? (some-> frame-name (tooling-frame-name? last?))]
+                                (vswap! results assoc i tooling?)
+                                (cond-> frame
+                                  tooling?
+                                  (flag-frame :tooling))))))
+         reverse
+         vec)))
 
 (defn directory-namespaces
   "Looks for all namespaces inside of directories on the class

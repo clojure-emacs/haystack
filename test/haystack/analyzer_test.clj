@@ -656,14 +656,20 @@
                                       (#'sut/tooling-frame-name? frame-name false)))
                                true)
     "cider.foo"                                                 true
+    "refactor-nrepl.middleware/wrap-refactor"                   true
+    "shadow.cljs.devtools.server.nrepl/shadow-inint"            true
     "acider.foo"                                                false
     ;; `+` is "application" level, should not be hidden:
     "clojure.core/+"                                            false
     ;; `apply` typically is internal, should be hidden:
     "clojure.core/apply"                                        true
     "clojure.core/binding-conveyor-fn/fn"                       true
+    "clojure.core.protocols/iter-reduce"                        true
     "clojure.core/eval"                                         true
     "clojure.core/with-bindings*"                               true
+    "clojure.lang.MultiFn/invoke"                               true
+    "clojure.lang.LazySeq/sval"                                 true
+    "clojure.lang.Var/invoke"                                   true
     "clojure.lang.AFn/applyTo"                                  true
     "clojure.lang.AFn/applyToHelper"                            true
     "clojure.lang.RestFn/invoke"                                true
@@ -685,7 +691,7 @@
           {:name "nrepl.foo", :flags #{:tooling}}
           {:name "clojure.lang.RestFn/invoke", :flags #{:tooling}}
           {:name "don't touch me 2"}
-          ;; gets the flag because it's not the root frame:
+          ;; gets the flag because it's the root frame:
           {:name "java.lang.Thread/run", :flags #{:tooling}}]
          (#'sut/flag-tooling [{:name "cider.foo"}
                               {:name "java.lang.Thread/run"}
@@ -694,4 +700,22 @@
                               {:name "clojure.lang.RestFn/invoke"}
                               {:name "don't touch me 2"}
                               {:name "java.lang.Thread/run"}]))
-      "Adds the flag when appropiate, leaving other entries untouched"))
+      "Adds the flag when appropiate, leaving other entries untouched")
+
+  (let [frames [{:name "don't touch me"}
+                {:name "java.util.concurrent.FutureTask/run"}
+                {:name "java.util.concurrent.ThreadPoolExecutor/runWorker"}
+                {:name "java.util.concurrent.ThreadPoolExecutor$Worker/run"}]]
+    (is (= [{:name "don't touch me"}
+            {:name "java.util.concurrent.FutureTask/run", :flags #{:tooling}}
+            {:name "java.util.concurrent.ThreadPoolExecutor/runWorker", :flags #{:tooling}}
+            {:name "java.util.concurrent.ThreadPoolExecutor$Worker/run", :flags #{:tooling}}]
+           (#'sut/flag-tooling frames))
+        "Three j.u.concurrent frames get the flag if they're at the bottom")
+    (is (= [{:name "don't touch me"}
+            {:name "java.util.concurrent.FutureTask/run"}
+            {:name "java.util.concurrent.ThreadPoolExecutor/runWorker"}
+            {:name "java.util.concurrent.ThreadPoolExecutor$Worker/run"}
+            {:name "x"}]
+           (#'sut/flag-tooling (conj frames {:name "x"})))
+        "The j.u.concurrent frames don't get the flag if they're not at the bottom")))
