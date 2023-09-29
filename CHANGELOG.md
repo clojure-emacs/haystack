@@ -2,7 +2,7 @@
 
 ## master (unreleased)
 
-## 0.3.0 (2023-09-29)
+## 0.3.1 (2023-09-29)
 
 * `analyzer`: include a `:compile-like` key which indicates if the error happened at a "compile-like" phase.
   * It represents exceptions that happen at runtime (and therefore never include a `:phase`) which however, represent code that cannot possibly work, and therefore are a "compile-like" exception (i.e. a linter could have caught them).
