@@ -252,7 +252,7 @@ for writing Instaparse grammars:
 Here's how to deploy to Clojars:
 
 #+begin_src sh
-git tag -a v0.2.0 -m "0.2.0"
+git tag -a v0.3.0 -m "0.3.0"
 git push --tags
 #+end_src
 

@@ -2,11 +2,13 @@
 
 ## master (unreleased)
 
+## 0.3.0 (2023-09-29)
+
 * `analyzer`: include a `:compile-like` key which indicates if the error happened at a "compile-like" phase.
   * It represents exceptions that happen at runtime (and therefore never include a `:phase`) which however, represent code that cannot possibly work, and therefore are a "compile-like" exception (i.e. a linter could have caught them).
   * The set of conditions which are considered a 'compile-like' exception is private and subject to change. 
-* Use Orchard [0.15.1](https://github.com/clojure-emacs/orchard/blob/v0.15.1/CHANGELOG.md#0151-2023-09-21).
 * [#13](https://github.com/clojure-emacs/haystack/issues/13): Expand the set of frames considered as `:tooling`. 
+* Use Orchard [0.15.1](https://github.com/clojure-emacs/orchard/blob/v0.15.1/CHANGELOG.md#0151-2023-09-21).
 
 ## 0.2.0 (2023-08-20)
 
