@@ -614,36 +614,36 @@
 
   (testing "`:compile-like`"
     (testing "For non-existing fields"
-      (is (= [true]
+      (is (= ["true"]
              (->> (try
                     (eval '(.-foo ""))
                     (catch Throwable e
                       (sut/analyze e)))
                   (map :compile-like)))))
     (testing "For non-existing methods"
-      (is (= [true]
+      (is (= ["true"]
              (->> (try
                     (eval '(-> "" (.foo 1 2)))
                     (catch Throwable e
                       (sut/analyze e)))
                   (map :compile-like)))))
     (testing "For vanilla exceptions"
-      (is (= [false]
+      (is (= ["false"]
              (->> (try
                     (throw (ex-info "." {}))
                     (catch Throwable e
                       (sut/analyze e)))
                   (map :compile-like)))))
     (testing "For vanilla `IllegalArgumentException`s"
-      (is (= [false]
+      (is (= ["false"]
              (->> (try
                     (throw (IllegalArgumentException. "foo"))
                     (catch Throwable e
                       (sut/analyze e)))
                   (map :compile-like)))))
     (testing "For exceptions with a `:phase`"
-      (is (#{[false false] ;; normal expectation
-             [false]} ;; clojure 1.8
+      (is (#{["false" "false"] ;; normal expectation
+             ["false"]} ;; clojure 1.8
            (->> (try
                   (eval '(let [1]))
                   (catch Throwable e

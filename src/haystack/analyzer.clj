@@ -368,8 +368,8 @@
         phase (-> cause-data :data :clojure.error/phase)
         m {:class (name (:type cause-data))
            :phase phase
-           :compile-like (boolean (and (not phase)
-                                       (compile-like-exception? cause-data)))
+           :compile-like (pr-str (boolean (and (not phase)
+                                               (compile-like-exception? cause-data))))
            :message (:message cause-data)
            :stacktrace (analyze-stacktrace-data
                         (cond (seq (:trace cause-data))
