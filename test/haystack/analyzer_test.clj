@@ -603,7 +603,52 @@
                       (eval '(let [1]))
                       (catch Throwable e
                         (sut/analyze e)))
-                    (map :phase))))))))
+                    (map :phase)))))
+      (testing "Does not include `:phase` for vanilla runtime exceptions"
+        (is (= [nil]
+               (->> (try
+                      (throw (ex-info "" {}))
+                      (catch Throwable e
+                        (sut/analyze e)))
+                    (map :phase)))))))
+
+  (testing "`:compile-like`"
+    (testing "For non-existing fields"
+      (is (= [true]
+             (->> (try
+                    (eval '(.-foo ""))
+                    (catch Throwable e
+                      (sut/analyze e)))
+                  (map :compile-like)))))
+    (testing "For non-existing methods"
+      (is (= [true]
+             (->> (try
+                    (eval '(-> "" (.foo 1 2)))
+                    (catch Throwable e
+                      (sut/analyze e)))
+                  (map :compile-like)))))
+    (testing "For vanilla exceptions"
+      (is (= [false]
+             (->> (try
+                    (throw (ex-info "." {}))
+                    (catch Throwable e
+                      (sut/analyze e)))
+                  (map :compile-like)))))
+    (testing "For vanilla `IllegalArgumentException`s"
+      (is (= [false]
+             (->> (try
+                    (throw (IllegalArgumentException. "foo"))
+                    (catch Throwable e
+                      (sut/analyze e)))
+                  (map :compile-like)))))
+    (testing "For exceptions with a `:phase`"
+      (is (#{[false false] ;; normal expectation
+             [false]} ;; clojure 1.8
+           (->> (try
+                  (eval '(let [1]))
+                  (catch Throwable e
+                    (sut/analyze e)))
+                (map :compile-like)))))))
 
 (deftest tooling-frame-name?
   (are [frame-name expected] (testing frame-name
