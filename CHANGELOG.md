@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+* `analyzer`: include a `:compile-like` key which indicates if the error happened at a "compile-like" phase.
+  * It represents exceptions that happen at runtime (and therefore never include a `:phase`) which however, represent code that cannot possibly work, and therefore are a "compile-like" exception (i.e. a linter could have caught them).
+  * The set of conditions which are considered a 'compile-like' exception is private and subject to change. 
+
 ## 0.2.0 (2023-08-20)
 
 ## Changes

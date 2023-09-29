@@ -338,14 +338,29 @@
           (flag-duplicates)
           (flag-tooling)))))
 
+(defn- compile-like-exception?
+  "'Compile-like' exceptions are those that happen at runtime
+  (and therefore never include a `:phase`) which however,
+  represent code that cannot possibly work,
+  and therefore are a 'compile-like' exception (i.e. a linter could have caught them)."
+  [{cause-type    :type
+    ^String
+    cause-message :message}]
+  (and (= cause-type 'java.lang.IllegalArgumentException)
+       (or (some-> cause-message (.startsWith "No matching field"))
+           (some-> cause-message (.startsWith "No matching method")))))
+
 (defn- analyze-cause
   "Analyze the `cause-data` of an exception, in `Throwable->map` format."
   [cause-data print-fn]
   (let [pprint-str #(let [writer (StringWriter.)]
                       (print-fn % writer)
                       (str writer))
+        phase (-> cause-data :data :clojure.error/phase)
         m {:class (name (:type cause-data))
-           :phase (-> cause-data :data :clojure.error/phase)
+           :phase phase
+           :compile-like (boolean (and (not phase)
+                                       (compile-like-exception? cause-data)))
            :message (:message cause-data)
            :stacktrace (analyze-stacktrace-data
                         (cond (seq (:trace cause-data))
