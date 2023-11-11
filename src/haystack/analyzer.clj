@@ -88,11 +88,14 @@
                                    str)
                            (str (frame->url frame)))))
     (assoc frame :file-url (try
-                             (some->> frame :name symbol
-                                      (java/resolve-symbol 'user)
-                                      :file
-                                      path->url
-                                      str)
+                             (binding [java/*analyze-sources* false]
+                               (some->> frame
+                                        :name
+                                        symbol
+                                        (java/resolve-symbol 'user)
+                                        :file
+                                        path->url
+                                        str))
                              (catch Throwable _
                                ;; `java/resolve-symbol` can throw exceptions when the underlying class cannot be loaded.
                                ;; See https://github.com/clojure-emacs/haystack/issues/9

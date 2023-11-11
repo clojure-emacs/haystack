@@ -2,6 +2,10 @@
 
 ## master (unreleased)
 
+## 0.3.2 (2023-11-11)
+
+* Bind Orchard's `java/*analyze-sources* false` in order to fix a performance regression.
+
 ## 0.3.1 (2023-09-29)
 
 * `analyzer`: include a `:compile-like` key which indicates if the error happened at a "compile-like" phase.

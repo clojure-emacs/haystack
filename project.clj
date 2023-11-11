@@ -6,7 +6,7 @@
   :url "https://github.com/clojure-emacs/haystack"
   :license {:name "Eclipse Public License"
             :url "https://www.eclipse.org/legal/epl-v10.html"}
-  :dependencies [[cider/orchard "0.16.1"]
+  :dependencies [[cider/orchard "0.20.0"]
                  [instaparse "1.4.12" :exclusions [org.clojure/clojure]]]
   :pedantic? ~(if (System/getenv "CI")
                 :abort
