@@ -77,16 +77,17 @@
                               (str/replace #"--\d+" "")
                               (str/split #"/"))
           fn (or fn method)] ; protocol functions are not munged
-      (assoc frame
-             :ns  ns
-             :fn  (str/join "/" (cons fn anons))
-             :var (str ns "/" fn)
-             ;; Full file path
-             :file-url (or (some-> (info/info* {:ns 'user :sym (symbol ns fn)})
-                                   :file
-                                   path->url
-                                   str)
-                           (str (frame->url frame)))))
+      (binding [java/*analyze-sources* false]
+        (assoc frame
+               :ns  ns
+               :fn  (str/join "/" (cons fn anons))
+               :var (str ns "/" fn)
+               ;; Full file path
+               :file-url (or (some-> (info/info* {:ns 'user :sym (symbol ns fn)})
+                                     :file
+                                     path->url
+                                     str)
+                             (str (frame->url frame))))))
     (assoc frame :file-url (try
                              (binding [java/*analyze-sources* false]
                                (some->> frame
