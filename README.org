@@ -18,8 +18,11 @@ of course, there are different kinds of formats.
 Haystack is a library that can parse and analyze Clojure
 stacktraces. The parser transforms printed stacktraces back into data
 and the analyzer enriches stacktrace data with run-time information
-from the class path. It is used in [[https://docs.cider.mx][Cider]] to power the [[https://docs.cider.mx/cider/usage/navigating_stacktraces.html][stacktrace
-navigator]].
+from the class path. 
+
+Haystack was previously used in [[https://docs.cider.mx][CIDER]] for 
+stacktrace analysis. It is not included in CIDER anymore but can still
+be used as an individual library.
 
 ** Parser
 
