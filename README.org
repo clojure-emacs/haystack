@@ -13,6 +13,28 @@
 We recommend trying Orchard first, as it's more actively maintained. If you need
 to parse stacktraces from strings, then Haystack is still the way to go.
 
+** Haystack vs =orchard.stacktrace=
+
+The =orchard.stacktrace= namespace is a repatriation of Haystack's
+analyzer back into Orchard (see [[https://github.com/clojure-emacs/orchard/pull/322][orchard#322]]). When deciding between the
+two, keep these differences in mind:
+
+- *Analyzer:* Both provide an =analyze= function that turns a
+  =Throwable= (or a map in the =Throwable->map= format) into an
+  enriched cause chain. Orchard's version was modernized and
+  optimized; most notably its project-frame detection runs in under a
+  millisecond, where Haystack's namespace scan can take ~100ms on
+  large projects.
+
+- *Parser:* This is the key distinction. Haystack also ships a parser
+  that reconstructs stacktrace data from a *printed* stacktrace (REPL
+  output, a log file, an exception buried in another string).
+  =orchard.stacktrace= has no equivalent and only works with live
+  exceptions or their =Throwable->map= data.
+
+In short: reach for =orchard.stacktrace= when you have the exception
+object at hand, and for Haystack when all you have is its printed text.
+
 ** Introduction
 
 Stacktraces are a hot topic in the Clojure community. As a Clojurist
@@ -25,9 +47,9 @@ of course, there are different kinds of formats.
 Haystack is a library that can parse and analyze Clojure
 stacktraces. The parser transforms printed stacktraces back into data
 and the analyzer enriches stacktrace data with run-time information
-from the class path. 
+from the class path.
 
-Haystack was previously used in [[https://docs.cider.mx][CIDER]] for 
+Haystack was previously used in [[https://docs.cider.mx][CIDER]] for
 stacktrace analysis. It is not included in CIDER anymore but can still
 be used as an individual library.
 
@@ -53,7 +75,7 @@ enrich it with more information.
 *** Stacktrace data format
 
 An Haystack stacktrace parser transforms input into a parse result. On
-success, the parse result is a enhanced version of the Clojure data
+success, the parse result is an enhanced version of the Clojure data
 representation of a Throwable, a map with the following keys:
 
 - =:cause= The root cause message as a string.
@@ -229,7 +251,7 @@ following rules:
 
 - Most of the parsers in Haystack are implemented with [[https://github.com/Engelberg/instaparse][Instaparse]] and
   have a [[https://en.wikipedia.org/wiki/Backus%E2%80%93Naur_form][BNF]] grammar describing the format of the stacktrace. Try to
-  come up with an Instagram grammar for the new stacktrace format as
+  come up with an Instaparse grammar for the new stacktrace format as
   well, unless you have a better, simpler or more efficient way of
   parsing it (like the Clojure tagged literal parser for example).
 
