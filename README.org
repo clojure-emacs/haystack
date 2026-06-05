@@ -6,6 +6,13 @@
 [[https://clojars.org/mx.cider/haystack][https://versions.deps.co/mx.cider/haystack/downloads.svg]]
 
 * Haystack
+
+**Note:** much of the functionality in Haystack is now available as part of
+[Orchard](https://github.com/clojure-emacs/orchard), in particular
+[orchard.stacktrace](https://github.com/clojure-emacs/orchard/blob/master/src/orchard/stacktrace.clj).
+We recommend trying Orchard first, as it's more actively maintained. If you need
+to parse stacktraces from strings, then Haystack is still the way to go.
+
 ** Introduction
 
 Stacktraces are a hot topic in the Clojure community. As a Clojurist
